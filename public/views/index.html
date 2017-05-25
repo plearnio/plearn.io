@@ -1,0 +1,73 @@
+<html ng-app="myApp">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+	<meta name="description" content="Plearn's Portfolio , Nice to meet you all !. #CPE28-KMUTT">
+	<meta name="author" content="Plearn.io">
+	
+	<title>Plearn.io</title>
+	<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<link href="https://fonts.googleapis.com/css?family=Padauk|Mitr|Open+Sans:300|Source+Sans+Pro:300" rel="stylesheet">
+	<script src="js/main.js"></script>
+	<link rel="stylesheet" href="css/main.css">
+</head>
+<body id="_home" style="padding: 0px">
+<nav id="header" class="navbar navbar-fixed-top">
+        <div id="header-container" class="container navbar-container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <i class="fa fa-square-o fa-lg"></i>
+                </button>
+                <a id="brand" class="navbar-brand" href="#">< Plearn.io ></a>
+            </div>
+            <div id="navbar" class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li id="linkHome"><a href="#_home" >Profile</a></li>
+                    <li id="linkWorks"><a href="#_chat">News</a></li>
+                    <li id="linkWorks"><a href="#_work">Updates</a></li>
+                    <li id="linkTimeline"><a href="#_time-line">Tutorial</a></li>
+                </ul>
+            </div>
+        </div>
+</nav>
+
+	<center style="margin-top: 100px" id="_chat">
+	<h1>Main Page</h1>
+	<h2><span class="sub">( ช่วงพัฒนา )</span></h2>
+	</center>
+
+	<div class="container" style="overflow:hidden; padding-left: 0px;padding-left: 0px;">
+		<center style="padding-bottom: 30px;padding-top: 30px">
+      <div style="background-color:white">
+			<canvas id="cv" width="960" height="480" style="border:1px solid #ddd">
+			</canvas>
+      </div>
+			<div class="col-md-6 col-md-offset-3 col-sm-12 col-xs-12" style="padding-left: 10px;padding-right: 0px;margin-top:-50px">
+				<div style="width: 100%;height:150px;overflow-x:hidden;overflow-y: auto;padding:20px;border:1px solid #ddd;margin-top: 50px">
+				<div id="messages" style="text-align: left;list-style-type: none;"></div>
+				</div>
+				<form action="">
+				<div class="input-group">
+				  <input type="text" class="form-control" placeholder="Messages" aria-describedby="basic-addon2" id="m" autocomplete="off">
+				  <span class="input-group-addon" id="basic-addon2" style="padding: 0px"><button class="btn btn-default" style="margin-top:-1px">ส่งข้อความ</button></span>
+				</div>
+			    </form>
+		    </div>
+		</center>
+	</div>
+<footer style="text-align: center;margin-top: 30px">
+	        <p>© Plearn.io 2017</p>
+</footer>
+</body>
+
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.0-beta.2/angular-sanitize.js"></script>
+<script src="https://code.angularjs.org/1.5.8/angular-animate.js"></script>
+<script src="controllers/controller.js"></script>
+</html>

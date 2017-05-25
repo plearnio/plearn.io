@@ -1,0 +1,10 @@
+
+.container{padding: 30px 50px 50px 50px;}
+p{font-size:22px;line-height: 30px;}
+#content-body{padding-top: 30px;}
+#content-body .col-md-4{padding-top: 40px;}
+
+
+@media (max-width: 487px) {
+	.container{padding: 40px 30px 50px 30px;}
+}
