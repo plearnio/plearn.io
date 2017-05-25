@@ -22,23 +22,23 @@ multiple player survival  game on web
 - Public 
   contain normal components that you need to build web application 
   # general
-  Public/controllers -> contain controllers build by angularjs , deal with nodejs server 
-  Public/css -> all css
-  Public/images -> general images
+  - Public/controllers -> contain controllers build by angularjs , deal with nodejs server 
+  - Public/css -> all css
+  - Public/images -> general images
   # core
-  Public/js -> javascript file that build plearn world and control normal element
-  Public/js/genesiz.js -> seeding 
+  - Public/js -> javascript file that build plearn world and control normal element
+  - Public/js/genesiz.js -> seeding 
     Random world 
     Control Avatar
     Chat
     Multiplayer 
     Drawing 
     Etc
-  Public/js/main.js -> general javascript
+  - Public/js/main.js -> general javascript
   # core
-  Public/views
-  Public/views/index.html -> main page
-  Public/views/profile.html -> profile page
+  - Public/views
+  - Public/views/index.html -> main page
+  - Public/views/profile.html -> profile page
   # no use
-  Public/views/plearn_logo
+  - Public/views/plearn_logo
     
