@@ -43,6 +43,10 @@ app.get('/index', function(req, res) {
     res.sendfile(path.resolve('public/views/index.html'))
 });
 
+app.get('/profile', function(req, res) {
+    res.sendfile(path.resolve('public/views/profile.html'))
+});
+
 http.listen(8080, function(){
     console.log("server run at port 8080");
 });
