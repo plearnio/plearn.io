@@ -20,9 +20,9 @@ io.on('connection', function(socket){
 		}
 		var currentdate = new Date(); 
 
-	    db.messages.insert(obj, function(err,doc){
+	    /*db.messages.insert(obj, function(err,doc){
 		    console.log(obj)
-		});
+		});*/
 	    io.emit('chat message', msg);
 	});
 	socket.on('count total', function(total){
