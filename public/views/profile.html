@@ -1,0 +1,361 @@
+<html ng-app="myApp">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+	<meta name="description" content="Plearn.io game">
+	<meta name="author" content="Plearn.io">
+	
+	<title>Plearn.io</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<link href="https://fonts.googleapis.com/css?family=Padauk|Mitr|Open+Sans:300|Source+Sans+Pro:300" rel="stylesheet">
+    <script src="js/main.js"></script>
+    <link rel="stylesheet" href="css/w3.css">
+    <link rel="stylesheet" href="css/main.css">
+    <style>
+        .w3-sidenav a {padding:16px;font-family: 'Mitr', sans-serif;}
+        #myBtn { font-size: 130%;font-family: 'Mitr', sans-serif;}
+        .menu-focus { 
+            background-color: #bbb;
+        }
+        .w3-button{
+           font-family: 'Mitr', sans-serif; 
+        }
+
+        /* Create a Parallax Effect */
+        .bgimg-1, .bgimg-2, .bgimg-3 {
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+
+        /* First image (Logo. Full height) */
+        .bgimg-1 {
+            background-image: url('../images/plearn/background/BG.jpg');
+        }
+
+        .w3-wide {letter-spacing: 10px;}
+        .w3-hover-opacity {cursor: pointer;}
+
+        /* Turn off parallax scrolling for tablets and phones */
+        @media only screen and (max-device-width: 1024px) {
+            .bgimg-1, .bgimg-2, .bgimg-3 {
+                background-attachment: scroll;
+            }
+        }
+        body{
+            height:100%;
+            padding-top:0px;
+            background-color: rgba(255,255,255,0.1);
+        }
+        .profile-info td{
+            font-family: 'Mitr', sans-serif; 
+            font-style: bold;
+            font-size: 120%;
+		    line-height: 1.5;
+            padding: 5px;
+        }
+
+
+        hr.style-eight {
+            padding: 0;
+            border: none;
+            border-top: medium double #333;
+            color: #333;
+            text-align: center;
+        }
+        hr.style-eight:after {
+            display: inline-block;
+            position: relative;
+            top: -0.7em;
+            font-size: 1.5em;
+            padding: 0 0.25em;
+            background: white;
+        }
+
+        nav {
+            font-family: 'Mitr', sans-serif; 
+        }
+
+        p b {
+            color:black;
+        }
+
+        .div-button:hover{
+            background-color:#eee;
+        }
+    </style>
+</head>
+
+<body>
+<nav id="header" class="navbar navbar-fixed-top">
+        <div id="header-container" class="container navbar-container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <i class="fa fa-square-o fa-lg"></i>
+                </button>
+                <a id="brand" class="navbar-brand" href="#">< Plearn.io ></a>
+            </div>
+            <div id="navbar" class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li id="linkHome"><a href="#_home" >Profile</a></li>
+                    <li id="linkWorks"><a href="#_chat">News</a></li>
+                    <li id="linkWorks"><a href="#_work">Updates</a></li>
+                    <li id="linkTimeline"><a href="#_time-line">Tutorial</a></li>
+                </ul>
+            </div>
+        </div>
+</nav>
+
+<!-- First Parallax Image with Logo Text -->
+<div class="bgimg-1" id="_home" style="padding-top:150px;padding-bottom: 100px">
+<div class="container w3-animate-opacity" style="white-space:nowrap;background-color:rgba(255,255,255,1);padding: 30px;padding-top:0px;">
+    <div style="overflow-x:hidden">
+    <div class="col-md-12  w3-opacity-min" style="margin-bottom:30px;padding-top:20px">
+        <span class="w3-center w3-padding-xlarge w3-black w3-xlarge w3-wide myFont">สวัสดี <span class="w3-hide-small"> p.plearn </span> !</span>
+    </div>
+    <div class="col-md-12">
+        <div class="col-md-5  w3-opacity-min">
+            <center style="width:300px;overflow:hidden;margin:auto auto;margin-top:30px">
+            <img src="images/plearn/profile.jpg" style="height: 300px;">
+            </center>
+        </div>
+        <div class="col-md-7">
+            <h3> ข้อมูลผู้เล่น </h3>
+            <hr class="style-eight">
+            <table style="width: 100%" class="profile-info">
+                <col width="30%"><col width="70%">
+                <tr><td><b>ID</b></td><td class="sub">p.plearn</td></tr>
+                <tr><td><b>เลเวล</b></td><td class="sub">5</td></tr>
+                <!--<tr><td><b>เขียนเนื้อหา</b></td><td class="sub"> 16 บท <button class="btn btn-default" style="margin-left:20px;opacity:1"><i class="fa fa-book"></i></button></td></tr>-->
+                <tr><td><b>ประสบการณ์</b></td><td><div class="w3-light-grey">
+                    <div class="w3-container w3-padding-small w3-dark-grey w3-center" style="width:75%;font-size: 50%">72.6 %</div>
+                </div></td></tr>
+            </table>
+            <div class="col-md-12" style="text-align:center;padding: 20px;border:1px solid #ddd;margin-top:20px">
+                <div class="col-md-4">
+                    <h5>ไอเท็มที่พบ</h5>
+                    <h4>75</h4>
+                </div>
+                <div class="col-md-4">
+                    <h5>สร้างไอเท็ม</h5>
+                    <h4>3</h4>
+                </div>
+                <div class="col-md-4">
+                    <h5>โลกที่สร้าง</h5>
+                    <h4>16</h4>
+                </div>
+            </div>
+                
+        </div>
+    </div>
+    <div class="col-md-12" style="margin-top:40px;padding: 0px">
+        <center style="margin-bottom:20px"><button class="btn btn-default" type="button" data-toggle="collapse" data-target="#clusterDiv" aria-expanded="false"><h6>กดเพื่อดูรูปแบบการเล่น</h6></button></center>
+        <div class="col-md-12 collapse w3-opacity-min" id="clusterDiv" style="border:1px solid #ddd;padding: 0px;">
+            <div class="col-md-8" style="padding:0px;height:520">
+                <center style="width:100%;"><div id='clusterChart'></center>
+            </div>
+            <div class="col-md-4" style="padding:20px;overflow-y:auto;height:520;display: block;white-space: normal;word-wrap: break-word;">
+                <center style="width:100%;padding: 20px"><h5>Analysis by Neural's System</h5></center>
+                <p><b>#1</b> : Analysis from 175 data <br><b>#2</b> : Data quality : <b>C (normal)</b> , please learning in Plearn Zone to 90-100% for increase quality
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12" style="margin-top:40px;padding: 0px">
+        <center style="margin-bottom:20px"><a href="index"><button class="btn btn-default" type="button" ><h6>โลกของ p.plearn</h6></button></a></center>
+        <div class="col-md-12 collapse w3-opacity-min" id="clusterDiv" style="border:1px solid #ddd;padding: 0px;">
+            <div class="col-md-8" style="padding:0px;height:520">
+                <center style="width:100%;"><div id='clusterChart'></center>
+            </div>
+            <div class="col-md-4" style="padding:20px;overflow-y:auto;height:520;display: block;white-space: normal;word-wrap: break-word;">
+                <center style="width:100%;padding: 20px"><h5>Analysis by Neural's System</h5></center>
+                <p><b>#1</b> : Analysis from 175 data <br><b>#2</b> : Data quality : <b>C (normal)</b> , please learning in Plearn Zone to 90-100% for increase quality
+                </p>
+            </div>
+        </div>
+    </div>
+    </div>
+</div>
+
+</div>
+<center style="margin-top: 100px" id="_chat">
+	<h1>Status</h1>
+	<h2><span class="sub">( อยู่ในช่วงพัฒนา )</span></h2>
+	</center>
+</body>
+
+
+<script>
+var openInbox = document.getElementById("myBtn");
+openInbox.click();
+
+function w3_open() {
+    document.getElementById("mySidenav").style.display = "block";
+    document.getElementById("myOverlay").style.display = "block";
+}
+function w3_close() {
+    document.getElementById("mySidenav").style.display = "none";
+    document.getElementById("myOverlay").style.display = "none";
+}
+
+function myFunc(id) {
+    var x = document.getElementById(id);
+    if (x.className.indexOf("w3-show") == -1) {
+        x.className += " w3-show"; 
+        x.previousElementSibling.className += " w3-green";
+    } else { 
+        x.className = x.className.replace(" w3-show", "");
+        x.previousElementSibling.className = 
+        x.previousElementSibling.className.replace(" w3-green", "");
+    }
+}
+
+//openMail("ch1-1")
+function openMail(personName) {
+    var i;
+    var x = document.getElementsByClassName("person");
+    for (i = 0; i < x.length; i++) {
+       x[i].style.display = "none";
+    }
+    x = document.getElementsByClassName("test");
+    for (i = 0; i < x.length; i++) {
+       x[i].className = x[i].className.replace(" w3-light-grey", "");
+    }
+    document.getElementById(personName).style.display = "block";
+}
+
+$(document).ready(function(){
+
+			$('a[href^="#_"]').on('click', function(event) {
+
+			    var target = $(this.getAttribute('href'));
+
+			    if( target.length ) {
+			        event.preventDefault();
+			        $('html, body').stop().animate({
+			            scrollTop: target.offset().top
+			        }, 500);
+			    }
+
+			});
+	    });
+</script>
+<script src= "https://cdn.zingchart.com/zingchart.min.js"></script>
+<script> 
+    zingchart.MODULESDIR = "https://cdn.zingchart.com/modules/";
+    ZC.LICENSE = ["569d52cefae586f634c54f86dc99e6a9","ee6b7db5b51705a13dc2339db3edaf6d"];
+</script>
+<script>
+var openTab = document.getElementById("firstTab");
+zingchart.THEME="classic";
+var ctconfig = 
+        {
+            "type": "radar",
+            "border": "none",
+            "tooltip": {
+                "text": "%t<br>%k Is %v",
+                "shadow": 0,
+                "border-radius": 3,
+                "background-color": "black",
+            },
+            "plot": {
+                "aspect": "area",
+                "active-area":true
+            },
+            "plotarea":{   
+                "background-color" : "#eee",
+                "margin":"0 0 0 0"  
+            },
+            "scale-k": {
+                "values": [
+                    "Hunter",
+                    "Warrior",
+                    "Robot",
+                    "Technical",
+                    "Farmer",
+                    "Traper",
+                ],
+                "item": {
+                    "font-size": "12px",
+                    "padding":"10px",
+                    "color":"black",
+                },
+                "guide": {
+                    "line-color": "#ddd",
+                    "line-style": "solid",
+                    "line-width": "2px",
+                    "items": [
+                        {
+                            "background-color": "#111"
+                        }
+                    ]
+                },
+                "tick": {
+                    "visible": false
+                }
+            },
+            "scale-v": {
+                "values": "0:5:1",
+                "labels": ["", "", "", "", "","" ],
+                "ref-line": {
+                    "line-width": "1px",
+                    "line-color": "#818181"
+                },
+                "guide": {
+                    "line-width": ".5px",
+                    "line-color": "#eee",
+                    "line-style": "dashed"
+                },
+                "tick": {
+                    "size": 10,
+                    "line-width": ".5px",
+                    "line-length": 0.55,
+                    "line-color": "#818181"
+                },
+                "item": {
+                    "padding-left": "9.5px",
+                    "font-size": "8px",
+                    "color": "white"
+                }
+            },
+            "series": [
+                {
+                    "values": [
+                        3.8,
+                        1.2,
+                        4.6,
+                        2.5,
+                        4.7,
+                        1.2,
+
+                    ],
+                    "text": "Stratgy",
+                    "background-color": "#ddd",
+                    "line-color": "#fff",
+                    "line-width": "4px",
+                    "alpha": "0.35",
+                    "marker": {
+                        "background-color": "#999999",
+                        "size": "4",
+                        "border-color": "#999999",
+                        "alpha": "0.55"
+                    }
+                
+                }
+            ]
+        };
+
+zingchart.render({ 
+	id : 'clusterChart', 
+	data : ctconfig, 
+	width: '100%',
+    height: '100%',
+});
+</script>
+</html>
