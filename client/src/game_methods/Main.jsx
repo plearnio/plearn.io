@@ -1,17 +1,14 @@
 import React, { Component } from 'react'
+import BuildSprite from '../classes/BuildSprite'
 
 const PIXI = require('pixi.js')
+
+
+const Sprite = PIXI.Sprite
+const Rectangle = PIXI.Rectangle
 PIXI.utils.sayHello('start pixi')
 
 const app = new PIXI.Application(800, 600)
-const styles = {
-  Main: {
-    color: 'white',
-    backgroundColor: '#3f3f46',
-    padding: '20px',
-    borderRadius: '10px',
-  }
-}
 
 class Main extends Component {
 
@@ -26,78 +23,55 @@ class Main extends Component {
     background.drawRect(0, 0, app.renderer.width, app.renderer.height)
     app.stage.addChild(background)
     document.getElementById('test').appendChild(app.view)
+    PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST
+    const assetsLoaded = () => {
 
-    const sendResult = (name) => {
-      this.props.passData(name)
-    }
-
-    const getObject = (pic, x, y, speed, scale) => {
-      const Sprite = PIXI.Sprite.fromImage(`http://localhost:4000/getPic/1/${pic}`)
-      this.x = 1
-      Sprite.scale.set(scale)
-      Sprite.x = x
-      Sprite.y = y
-      Sprite.interactive = true
-      Sprite.buttonMode = true
-      Sprite.on('pointerdown', () => sendResult(pic))
-
-      app.stage.addChild(Sprite)
-
-      app.ticker.add((delta) => {
-        if (Sprite.x > app.renderer.width) Sprite.x = 0 - Sprite.width
-        Sprite.x += speed * delta
+      const allFunction = {}
+      allFunction.hello = (value) => {
+        console.log(value)
+      }
+      const runFunction = (fnstring, fnparams) => {
+        console.log(fnparams)
+        if (typeof allFunction[fnstring] === 'function') allFunction[fnstring](fnparams)
+      }
+      runFunction('hello', 'test')
+      const heroWalk = new BuildSprite('hero-walk', 7, { x: 100, y: 0 })
+      const heroIdle = new BuildSprite('hero-idle', 8, { x: 400, y: 0 })
+      heroWalk.animate.gotoAndPlay(0)
+      heroIdle.animate.gotoAndPlay(0)
+      heroWalk.animate.x = 100
+      heroIdle.animate.x = 400
+      app.stage.addChild(heroWalk.animate)
+      app.stage.addChild(heroIdle.animate)
+      const getMousePosition = () => app.renderer.plugins.interaction.mouse.global
+      app.ticker.add(() => {
+        const mousePosition = getMousePosition()
+        mousePosition.x = parseInt(mousePosition.x, 10)
+        mousePosition.y = parseInt(mousePosition.y, 10)
+        heroIdle.checkSide(mousePosition)
+        heroWalk.checkSide(mousePosition)
+        background.on('pointerdown', () => {
+          heroIdle.status = 'walk'
+          heroIdle.statusArg.x = mousePosition.x
+          heroIdle.statusArg.y = mousePosition.y
+          heroIdle.statusArg = heroIdle.pos
+          heroWalk.statusArg.x = mousePosition.x
+          heroWalk.statusArg.y = mousePosition.y
+          heroWalk.statusArg = heroWalk.pos
+        })
+        heroIdle[heroIdle.status]()
+        heroWalk[heroWalk.status]()
       })
-    }
-
-    const Chung = []
-    Chung.push(PIXI.Texture.fromImage(`http://localhost:4000/getAnimate/1/chung/1`))
-    Chung.push(PIXI.Texture.fromImage(`http://localhost:4000/getAnimate/1/chung/2`))
-
-    const Lay = []
-    Lay.push(PIXI.Texture.fromImage(`http://localhost:4000/getAnimate/1/lay/1`))
-    Lay.push(PIXI.Texture.fromImage(`http://localhost:4000/getAnimate/1/lay/2`))
-
-    const getAnimate = (target, x, y, speed, scale, toggle) => {
-      const Animate = new PIXI.extras.AnimatedSprite(target)
-
-      Animate.scale.set(scale)
-      Animate.x = x
-      Animate.y = y
-      Animate.interactive = true
-      Animate.buttonMode = true
-      Animate.on('pointerdown', () => {
-        if (toggle === 0) {
-          sendResult('chung')
-          getAnimate(Lay, Animate.x, Animate.y, speed, scale, 1)
-        } else {
-          sendResult('lay')
-          getAnimate(Chung, Animate.x, Animate.y, speed, scale, 0)
-        }
-        Animate.parent.removeChild(Animate)
-      })
-      Animate.gotoAndPlay(10)
-      Animate.animationSpeed = 0.1
-
-      app.stage.addChild(Animate)
       app.start()
-      app.ticker.add((delta) => {
-        if (Animate.x > app.renderer.width) Animate.x = 0 - Animate.width
-        Animate.x += speed * delta
-      })
     }
+
     app.stop()
-    background.on('pointerdown', (event) => {
-      sendResult('test')
-      const { x, y } = event.data.global;
-      getAnimate(Chung, x, y, Math.random() * 4, Math.random() * 0.5, 0)
-    })
-    app.start()
-    getObject('banana', app.renderer.width / 4, app.renderer.height / 4, 2, 0.2)
-    getObject('potato', app.renderer.width / 2, app.renderer.height / 2, 5, 0.3)
+    PIXI.loader
+    .add('hero', 'http://localhost:4000/getGame/1/hero-idle/')
+    .load(assetsLoaded)
   }
 
   render() {
-    const { data } = this.props
     return (
       <div id="test" />
     )
