@@ -4,6 +4,8 @@ const path = require('path')
 const app = express()
 const cors = require('cors')
 
+const random = require('./random')
+
 const PORT = 4000
 
 app.use('*', cors({ origin: '*' }))
@@ -25,6 +27,12 @@ app.get('/getGame/:id/:name/', (req, res) => {
   } else res.send('Access denied')
 })
 
+app.get('/generateWorld/:id/', (req, res) => {
+  if (parseInt(req.params.id, 10) === 1) {
+    const numRandom = (random())
+    res.json(numRandom)
+  } else res.send('Access denied')
+})
 app.listen(PORT, () => {
   console.log('Example app listening on port 4000!')
 })
