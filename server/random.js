@@ -1,8 +1,8 @@
 //  Lib lodash
-let _ = require('lodash')
+const _ = require('lodash')
 
 //  Global: object in map
-const objMap = [
+const objMapArray = [
   {
     objName: 'grass',
     rarity: 1,
@@ -61,7 +61,7 @@ const objMap = [
   }
 ]
 
-const genRandomObj = (objMapArray, numberOfObject) => {
+const genRandomObj = (numberOfObject) => {
   // Initial value
   const m = -1
   const objRanArray = []
@@ -76,7 +76,7 @@ const genRandomObj = (objMapArray, numberOfObject) => {
   for (let i = 0; i < objMapArray.length; i += 1) {
     numRangeRandomObj[i] = (m * objMapArray[i].rarity) + c + 1
   }
-  console.log('Range: ' + numRangeRandomObj)
+  console.log(`Range : ${numRangeRandomObj}`)
 
   //  Find summation of rarity from obj
   const sumRarity = _.sumBy(numRangeRandomObj)
@@ -101,50 +101,49 @@ const genRandomObj = (objMapArray, numberOfObject) => {
 
 const genRandomTypeObj = (randomObjArray, numberOfObject) => {
   console.log(randomObjArray)
-  console.log('numberOfObject: '+numberOfObject)
+  console.log(`numberOfObject: ${numberOfObject}`)
 
   //  1. Find each type and sum => Format { bust:3 , twig:4 }
   const sortedWithCountObj = _.countBy(randomObjArray)
   //  Convert  { bust:3 , twig:4 } => [bust,3], [twig,4]
   const objArray = _.toPairs(sortedWithCountObj)
-  console.log('objArray: '+objArray.length)
-  
+  console.log(`objArray: ${objArray.length}`)
   //  2. random all / keep prop + count tile together
   const objRanArray = []
   // for in array of sorted / count
   for (let i = 0; i < objArray.length; i += 1) {
     //  for in array of objMap
-    for (let j = 0; j < objMap.length; j += 1) {
+    for (let j = 0; j < objMapArray.length; j += 1) {
       // If obj from sorted array match to obj Map
-      if (objArray[i][0] === objMap[j].objName) {
+      if (objArray[i][0] === objMapArray[j].objName) {
         console.log(objArray[i])
 
         //  find maximum of rarity from obj
-        const maxRarity = _.maxBy(objMap[j].types, (obj) => {
+        const maxRarity = _.maxBy(objMapArray[j].types, (obj) => {
           return obj.rarity
         })
         const c = maxRarity.rarity
         const m = -1
         //  Keep y value (from y = mx+c+1) to array
         const numRangeRandomObj = []
-        for (let n = 0; n < objMap[j].types.length; n += 1) {
-          numRangeRandomObj[n] = (m * objMap[j].types[n].rarity) + c + 1
+        for (let n = 0; n < objMapArray[j].types.length; n += 1) {
+          numRangeRandomObj[n] = (m * objMapArray[j].types[n].rarity) + c + 1
         }
 
         //  Find total summation of rarity
         const sumRarity = _.sumBy(numRangeRandomObj)
-        // For each obj 
+        // For each obj
         for (let k = 0; k < objArray[i][1]; k += 1) {
           //  Initial current rarity
           let currentRarity = 0
           //  Random 1 number
           const numRan = Math.floor(Math.random() * sumRarity) + 1
           //  Generate Type Object
-          for (let l = 0; l < objMap[j].types.length; l += 1) {
+          for (let l = 0; l < objMapArray[j].types.length; l += 1) {
             currentRarity += numRangeRandomObj[l]
             //  If randomed number more than current rarity -> add obj to array
             if (currentRarity >= numRan) {
-              objRanArray.push(objMap[j].types[l])
+              objRanArray.push(objMapArray[j].types[l])
               break
             }
           }
@@ -159,12 +158,11 @@ const generateObj = () => {
   //  initial number of area and tiles per one are
   //  const numArea = 10
   //  const numTilePerArea = 24
-  const objMapArray = objMap
-  const numberOfObject = 100
+  const NUMBER_OF_OBJECT = 100
   //  random obj
-  const randomObjArray = genRandomObj(objMapArray, numberOfObject)
+  const randomObjArray = genRandomObj(NUMBER_OF_OBJECT)
   //  random obj type
-  const randomObjTypeArray = genRandomTypeObj(randomObjArray, numberOfObject)
+  const randomObjTypeArray = genRandomTypeObj(randomObjArray, NUMBER_OF_OBJECT)
   return randomObjTypeArray
 }
 
