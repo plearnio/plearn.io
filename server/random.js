@@ -61,7 +61,7 @@ const objMapArray = [
   }
 ]
 
-const binarySearchRarity = (sortedRarityArray, objArray) => {
+const genObjFromBinarySearchRarity = (sortedRarityArray, objArray) => {
   //  Intial value
   let randomObj = 0
   let tempLength = sortedRarityArray.length / 2
@@ -144,11 +144,11 @@ const genRandomObj = (numberOfTile) => {
   //  Random objects from number of total tiles
   for (let currOfTile = 0; currOfTile <= numberOfTile; currOfTile += ranObjType.numTile) {
     //  Generate Randomed Object
-    const ranObj = binarySearchRarity(raritySortedObjArray, objMapArray)
+    const ranObj = genObjFromBinarySearchRarity(raritySortedObjArray, objMapArray)
     //  Find obj that match to obj 'name' from rarity sorted object type array
     const ranObjWithRarityArray = _.find(raritySortedObjTypeArray, { 'name': ranObj.objName })
     //  Generate Randomed Type Object
-    ranObjType = binarySearchRarity(ranObjWithRarityArray.types, ranObj.types)
+    ranObjType = genObjFromBinarySearchRarity(ranObjWithRarityArray.types, ranObj.types)
     //  Add result object into array
     ranObjArray.push(ranObjType)
   }
