@@ -8,7 +8,7 @@ const objMapArray = [
     rarity: 1,
     types:
     [
-      { name: 'grass1', rarity: 6, numTile: 1 }
+      { name: 'grass1', rarity: 6, numTile: 1, color: '#09F905' }
     ]
   },
   {
@@ -16,7 +16,7 @@ const objMapArray = [
     rarity: 2,
     types:
     [
-     { name: 'bush1', rarity: 6, numTile: 1 }
+      { name: 'bush1', rarity: 6, numTile: 1, color: '#09F905' }
     ]
   },
   {
@@ -24,9 +24,9 @@ const objMapArray = [
     rarity: 3,
     types:
     [
-      { name: 'twig1', rarity: 1, numTile: 3 ,},
-      { name: 'twig2', rarity: 3, numTile: 1 },
-      { name: 'twig3', rarity: 6, numTile: 1 }
+      { name: 'twig1', rarity: 1, numTile: 3, color: '#09F905' },
+      { name: 'twig2', rarity: 3, numTile: 1, color: '#1FA20F' },
+      { name: 'twig3', rarity: 6, numTile: 1, color: '#1E0ECF' }
     ]
   },
   {
@@ -34,10 +34,10 @@ const objMapArray = [
     rarity: 4,
     types:
     [
-      { name: 'flower1', rarity: 1, numTile: 1 },
-      { name: 'flower2', rarity: 10, numTile: 1 },
-      { name: 'flower3', rarity: 25, numTile: 1 },
-      { name: 'flower4', rarity: 64, numTile: 1 }
+      { name: 'flower1', rarity: 1, numTile: 1, color: '#F781F3' },
+      { name: 'flower2', rarity: 10, numTile: 1, color: '#F3F781' },
+      { name: 'flower3', rarity: 25, numTile: 1, color: '#81F781' },
+      { name: 'flower4', rarity: 64, numTile: 1, color: '#2E2EFE' }
     ]
   },
   {
@@ -45,8 +45,8 @@ const objMapArray = [
     rarity: 5,
     types:
     [
-     { name: 'rock1', rarity: 2, numTile: 2 },
-     { name: 'rock2', rarity: 8, numTile: 0.25 }
+      { name: 'rock1', rarity: 2, numTile: 2, color: '#09F905' },
+      { name: 'rock2', rarity: 8, numTile: 1, color: '#09F905' }
     ]
   },
   {
@@ -54,116 +54,145 @@ const objMapArray = [
     rarity: 6,
     types:
     [
-      { name: 'tree1', rarity: 1, numTile: 3 },
-      { name: 'tree2', rarity: 3, numTile: 3 },
-      { name: 'tree3', rarity: 6, numTile: 5 }
+      { name: 'tree1', rarity: 1, numTile: 3, color: '#09F905' },
+      { name: 'tree2', rarity: 3, numTile: 3, color: '#1FA20F' },
+      { name: 'tree3', rarity: 6, numTile: 5, color: '#1E0ECF' }
     ]
   }
 ]
 
-const genRandomObj = (numberOfObject) => {
+const binarySearchRarity = (sortedRarityArray, objArray) => {
+  //  Intial value
+  let randomObj = 0
+  let tempLength = sortedRarityArray.length / 2
+  //  Random 1 number between 1 - maximum of rarity in array
+  const numRan = Math.floor(Math.random() * sortedRarityArray[sortedRarityArray.length - 1]) + 1
+
+  //  Random object
+  for (let compairedNumIndex = Math.round(tempLength); randomObj === 0;) {
+    //  Compair to index-1, index and index+1
+    for (let i = compairedNumIndex - 1; i <= compairedNumIndex + 1; i += 1) {
+      //  If found return object
+      if (sortedRarityArray[i] === numRan) {
+        randomObj = objArray[i]
+        return randomObj
+      }
+    }
+    // Compair rarity value by Binary search
+    tempLength = Math.round(tempLength / 2)
+    if (numRan > sortedRarityArray[compairedNumIndex]) {
+      if (numRan < sortedRarityArray[compairedNumIndex + 1]) {
+        randomObj = objArray[compairedNumIndex + 1]
+        return randomObj
+      } else {
+        compairedNumIndex += tempLength
+      }
+    } else if (numRan < sortedRarityArray[compairedNumIndex]) {
+      if (numRan > sortedRarityArray[compairedNumIndex - 1]) {
+        randomObj = objArray[compairedNumIndex]
+        return randomObj
+      } else if (numRan < sortedRarityArray[0]) {
+        randomObj = objArray[0]
+        return randomObj
+      } else {
+        compairedNumIndex -= tempLength
+      }
+    }
+  }
+}
+
+const createRaritySortedArray = (objArray) => {
   // Initial value
   const m = -1
-  const objRanArray = []
-  const numRangeRandomObj = []
-  //  Get maximum of rarity from obj
-  const maxRarity = _.maxBy(objMapArray, (obj) => {
+  //  Keep rate of rarity from object in map
+  const raritySortedArray = []
+
+  //  Get maximum of rarity from obj -> find c
+  const maxRarity = _.maxBy(objArray, (obj) => {
     return obj.rarity
   })
   const c = maxRarity.rarity
-
+  //  Define function: Linear equation
   //  Keep y value (from y = mx+c+1) to array
-  for (let i = 0; i < objMapArray.length; i += 1) {
-    numRangeRandomObj[i] = (m * objMapArray[i].rarity) + c + 1
+  let countTemp = 0
+  for (let i = 0; i < objArray.length; i += 1) {
+    countTemp += (m * objArray[i].rarity) + c + 1
+    raritySortedArray[i] = countTemp
   }
-  console.log(`Range : ${numRangeRandomObj}`)
-
-  //  Find summation of rarity from obj
-  const sumRarity = _.sumBy(numRangeRandomObj)
-  //  Random 200 objects3
-  for (let i = 0; i < numberOfObject; i += 1) {
-    //  Initial current rarity
-    let currentRarity = 0
-    //  Random 1 number
-    const numRan = Math.floor(Math.random() * sumRarity) + 1
-    //  Generate Type Object
-    for (let j = 0; j < objMapArray.length; j += 1) {
-      currentRarity += numRangeRandomObj[j]
-      if (currentRarity >= numRan) {
-        //  If randomed number more than current rarity -> add obj to array
-        objRanArray[i] = objMapArray[j].objName
-        break
-      }
-    }
-  }
-  return objRanArray
+  return raritySortedArray
 }
 
-const genRandomTypeObj = (randomObjArray, numberOfObject) => {
-  console.log(randomObjArray)
-  console.log(`numberOfObject: ${numberOfObject}`)
+const createRaritySortedObjTypeArray = (objArray) => {
+  const rarityArray = []
+  objArray.map((obj) => {
+    const rarityObj = {}
+    rarityObj.name = obj.objName
+    rarityObj.types = createRaritySortedArray(obj.types)
+    rarityArray.push(rarityObj)
+  })
+  return rarityArray
+}
 
-  //  1. Find each type and sum => Format { bust:3 , twig:4 }
-  const sortedWithCountObj = _.countBy(randomObjArray)
-  //  Convert  { bust:3 , twig:4 } => [bust,3], [twig,4]
-  const objArray = _.toPairs(sortedWithCountObj)
-  console.log(`objArray: ${objArray.length}`)
-  //  2. random all / keep prop + count tile together
-  const objRanArray = []
-  // for in array of sorted / count
-  for (let i = 0; i < objArray.length; i += 1) {
-    //  for in array of objMap
-    for (let j = 0; j < objMapArray.length; j += 1) {
-      // If obj from sorted array match to obj Map
-      if (objArray[i][0] === objMapArray[j].objName) {
-        console.log(objArray[i])
+const genRandomObj = (numberOfTile) => {
+  const ranObjArray = []
+  //  Create Rarity Sorted Array for every object   | output: [6,11,15,18,20,21]
+  const raritySortedObjArray = createRaritySortedArray(objMapArray)
+  //  Create Rarity Sorted Array for type of object | output: [{name: grass, types: [1,2]}, {}, ...]
+  const raritySortedObjTypeArray = createRaritySortedObjTypeArray(objMapArray)
 
-        //  find maximum of rarity from obj
-        const maxRarity = _.maxBy(objMapArray[j].types, (obj) => {
-          return obj.rarity
-        })
-        const c = maxRarity.rarity
-        const m = -1
-        //  Keep y value (from y = mx+c+1) to array
-        const numRangeRandomObj = []
-        for (let n = 0; n < objMapArray[j].types.length; n += 1) {
-          numRangeRandomObj[n] = (m * objMapArray[j].types[n].rarity) + c + 1
-        }
-
-        //  Find total summation of rarity
-        const sumRarity = _.sumBy(numRangeRandomObj)
-        // For each obj
-        for (let k = 0; k < objArray[i][1]; k += 1) {
-          //  Initial current rarity
-          let currentRarity = 0
-          //  Random 1 number
-          const numRan = Math.floor(Math.random() * sumRarity) + 1
-          //  Generate Type Object
-          for (let l = 0; l < objMapArray[j].types.length; l += 1) {
-            currentRarity += numRangeRandomObj[l]
-            //  If randomed number more than current rarity -> add obj to array
-            if (currentRarity >= numRan) {
-              objRanArray.push(objMapArray[j].types[l])
-              break
-            }
-          }
-        }
-      }
-    }
+  let ranObjType = ''
+  //  Random objects from number of total tiles
+  for (let currOfTile = 0; currOfTile <= numberOfTile; currOfTile += ranObjType.numTile) {
+    //  Generate Randomed Object
+    const ranObj = binarySearchRarity(raritySortedObjArray, objMapArray)
+    //  Find obj that match to obj 'name' from rarity sorted object type array
+    const ranObjWithRarityArray = _.find(raritySortedObjTypeArray, { 'name': ranObj.objName })
+    //  Generate Randomed Type Object
+    ranObjType = binarySearchRarity(ranObjWithRarityArray.types, ranObj.types)
+    //  Add result object into array
+    ranObjArray.push(ranObjType)
   }
-  return objRanArray
+  return ranObjArray
+}
+
+const randomPositionObjOnMap = (randomObjTypeArray, numArea, numTilePerArea) => {
+  let currentTile
+  let currObj = -1
+  const objectMapArray = []
+
+  //  Each Area 1 - 10
+  for (let countArea = 0; countArea < numArea; countArea += 1) {
+    let objArea = []
+    //  Each tile in one area
+    for (currentTile = 0; randomObjTypeArray[currObj + 1].numTile + currentTile <= numTilePerArea; currentTile += randomObjTypeArray[currObj].numTile) {
+      currObj += 1
+      //  add 1 obj
+      objArea.push(randomObjTypeArray[currObj])
+      //  next obj
+    }
+
+    //  If there are spaces, add empty object
+    if (currentTile !== numTilePerArea) {
+      for (let i = 0; i < numTilePerArea - currentTile; i += 1) {
+        objArea.push({})
+      }
+      //  Shuffle empty space in 1 area
+      objArea = _.shuffle(objArea)
+    }
+    objectMapArray.push(objArea)
+  }
+  return objectMapArray
 }
 
 const generateObj = () => {
   //  initial number of area and tiles per one are
-  //  const numArea = 10
-  //  const numTilePerArea = 24
-  const NUMBER_OF_OBJECT = 100
+  const numArea = 10 // 10
+  const numTilePerArea = 24 // 24
   //  random obj
-  const randomObjArray = genRandomObj(NUMBER_OF_OBJECT)
-  //  random obj type
-  const randomObjTypeArray = genRandomTypeObj(randomObjArray, NUMBER_OF_OBJECT)
-  return randomObjTypeArray
+  const randomObjTypeArray = genRandomObj(numArea * numTilePerArea)
+  //  random positio in map
+  const objectOnMap = randomPositionObjOnMap(randomObjTypeArray, numArea, numTilePerArea)
+  return objectOnMap
 }
 
 module.exports = generateObj
