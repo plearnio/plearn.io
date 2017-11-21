@@ -168,17 +168,16 @@ module.exports = (passport) => {
         })
       } else {
         // user already exists and is logged in, we have to link accounts
-        const user            = req.user // pull the user out of the session
+        const user = req.user // pull the user out of the session
 
-        user.facebook.id    = profile.id
+        user.facebook.id = profile.id
         user.facebook.token = token
-        user.facebook.name  = profile.name.givenName + ' ' + profile.name.familyName
+        user.facebook.name = profile.name.givenName + ' ' + profile.name.familyName
         user.facebook.email = (profile.emails[0].value || '').toLowerCase()
 
         user.save((err) => {
           if (err)
             return done(err)
-                        
           return done(null, user)
         })
       }
