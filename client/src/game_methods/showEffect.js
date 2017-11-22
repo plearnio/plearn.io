@@ -1,7 +1,6 @@
 import Effect from '../classes/Effect'
 
 const showEffect = ({ stage, object, setAction, addItem }) => {
-  console.log(object.canGather)
   if (object.canGather) {
     const effect = new Effect('gather_item', 64, 92, 'gather_item', 6)
     setAction('gather')

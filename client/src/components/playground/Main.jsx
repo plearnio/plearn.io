@@ -1,13 +1,12 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
-import Player from '../classes/Player'
-import Effect from '../classes/Effect'
-import Background from '../classes/Background'
-import BuildRealObject from '../classes/BuildRealObject'
+import Player from '../../classes/Player'
+import Background from '../../classes/Background'
+import BuildRealObject from '../../classes/BuildRealObject'
 
-import checkInteract from '../game_methods/checkInteract'
-import showEffect from '../game_methods/showEffect'
+import checkInteract from '../../game_methods/checkInteract'
+import showEffect from '../../game_methods/showEffect'
 
 const PIXI = require('pixi.js')
 
@@ -19,6 +18,7 @@ const backgroundContainer = new PIXI.Container()
 const playerContainer = new PIXI.Container()
 const landContainer = new PIXI.Container()
 const effectContainer = new PIXI.Container()
+let objIdNow = 0
 
 class Main extends Component {
 
@@ -33,14 +33,14 @@ class Main extends Component {
     app.stage.addChild(landContainer);
     app.stage.addChild(playerContainer);
     const {
+      status,
+      activeObject,
       showObject,
       onWalk,
       onIdle,
       onInteract,
-      status,
-      activeObject,
       addItem,
-      setAction
+      setAction,
     } = this.props
     const getMousePosition = () => app.renderer.plugins.interaction.mouse.global
     const background = new Background('background', 'hill', app.renderer.height, app.renderer.width, 7)
@@ -65,7 +65,7 @@ class Main extends Component {
       // create land
       const Land = []
       for (i = 0; i < 12; i += 1) {
-        Land.push(new BuildRealObject('land', 1, TILE, i, LAND, 1, 'distland', 0, 1))
+        Land.push(new BuildRealObject(objIdNow, 'land', 1, TILE, i, LAND, 1, 'distland', 0, 1))
         landContainer.addChild(Land[i].Element)
         checkInteract({
           stage: landContainer,
@@ -80,10 +80,10 @@ class Main extends Component {
 
       // AllObjects.push(new BuildDummyObject('grass', 1, 1, 0, LAND - 1, 0x668866))
       // width in TILE, height in pixels, posx , pos Y, frame image, name url,
-      AllObjects.push(new BuildRealObject('tree', 1, 120, 3, 9, 6, 'tree', -5, 3, false))
-      AllObjects.push(new BuildRealObject('grass', 0.5, 27, 5, LAND - 1, 1, 'grass', 0, 1.5, true))
-      AllObjects.push(new BuildRealObject('grass', 0.5, 27, 11, LAND - 1, 1, 'grass', 0, 1.5, true))
-      AllObjects.push(new BuildRealObject('grass', 0.5, 27, 2, LAND - 1, 1, 'grass', 0, 1.5, true))
+      AllObjects.push(new BuildRealObject(objIdNow, 'tree', 1, 120, 3, 9, 6, 'tree', -5, 3, false))
+      AllObjects.push(new BuildRealObject(objIdNow, 'grass', 0.5, 27, 5, LAND - 1, 1, 'grass', 0, 1.5, true))
+      AllObjects.push(new BuildRealObject(objIdNow, 'grass', 0.5, 27, 11, LAND - 1, 1, 'grass', 0, 1.5, true))
+      AllObjects.push(new BuildRealObject(objIdNow, 'grass', 0.5, 27, 2, LAND - 1, 1, 'grass', 0, 1.5, true))
       // Shadows are the lowest
       for (i = 0; i < AllObjects.length; i += 1) {
         objectContainer.addChild(AllObjects[i].Element)
@@ -157,9 +157,9 @@ class Main extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    status: state.status,
-    activeObject: state.activeObject,
-    action: state.action
+    status: state.world.status,
+    activeObject: state.world.activeObject,
+    action: state.world.action,
   }
 }
 const mapDispatchToProps = (dispatch) => {

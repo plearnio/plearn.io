@@ -1,5 +1,10 @@
-const worldReducer = (state = { status: 'idle', activeObject: {}, listItem: [], action: 'idle' }, action) => {
-  let newState
+const world = (
+  state = {
+    status: 'idle',
+    activeObject: {},
+    action: 'idle',
+  }, action) => {
+  let newState = state
   switch (action.type) {
     case 'WALK' :
       newState = {
@@ -31,15 +36,9 @@ const worldReducer = (state = { status: 'idle', activeObject: {}, listItem: [], 
         activeObject: action.payload
       }
       break
-    case 'ADD_ITEM' :
-      newState = {
-        ...state,
-        listItem: [...state.listItem, action.payload]
-      }
-      break
     default: break
   }
   return newState
 }
 
-export default worldReducer
+export default world
