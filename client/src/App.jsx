@@ -23,6 +23,15 @@ const PlayGround = styled(Grid)`
 const Sidebar = styled(NoPaddingCol)`
   height: 640px;
   background-color: #222;
+  overflow: auto;
+`
+
+const Bag = styled(Grid)`
+  padding: 10px;
+  border: 1px solid #ddd;
+  width: 100%;
+  height: 500px;
+  overflow: auto;
 `
 
 const AppHeader = styled.div`
@@ -30,17 +39,22 @@ const AppHeader = styled.div`
   color: white;
   text-align: center;
 `
+const ImgItem = styled.img`
+  width:200px;
+`
 
 class App extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      name: 'hello react and pixijs'
+      name: 'hello react and pixijs',
     }
   }
 
   render() {
-    const { status, activeObject } = this.props
+    const { status, activeObject, listItem } = this.props
+    const bag = listItem.map(object => <h4>{object.name}</h4>)
+    console.log(activeObject)
     return (
       <div className="App">
         <PlayGround>
@@ -50,8 +64,12 @@ class App extends Component {
             </OverflowWithNoPaddingCol>
             <Sidebar xs={12} md={3} >
               <AppHeader>
-                <img src={logo} className="App-logo" alt="logo" />
+                <ImgItem src={activeObject.picture || logo} className="App-logo" alt="logo" />
                 <h2> You click : {activeObject.name || 'Nothing'}</h2>
+                <Bag>
+                  <h2> Your bag </h2>
+                  {bag}
+                </Bag>
               </AppHeader>
             </Sidebar>
           </Row>
@@ -64,7 +82,8 @@ class App extends Component {
 const mapStateToProps = (state) => {
   return {
     status: state.status,
-    activeObject: state.activeObject
+    activeObject: state.activeObject,
+    listItem: state.listItem
   }
 }
 export default connect(mapStateToProps)(App)

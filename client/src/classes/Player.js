@@ -11,6 +11,10 @@ class Player {
         name: 'idle',
         picName: 'hero-idle',
         frame: 8
+      }, {
+        name: 'interact',
+        picName: 'hero-idle',
+        frame: 8
       }
     ]
     this.animateSet = {}
@@ -76,7 +80,7 @@ class Player {
       const xVelo = Math.cos(angle) * this.speed
       this.animate.x += xVelo
     } else {
-      this.status = 'idle'
+      this.status = 'interact'
     }
   }
 
@@ -84,9 +88,11 @@ class Player {
     this.mousePoint = value
   }
 
-  checkStatus(status) {
+  checkStatus(status, activeObject) {
     if (this.textureStatus !== this.status) {
-      console.log(this.status)
+      // console.log(activeObject.Element.x)
+      // console.log(this.animate.x)
+      // console.log(this.status)
       this.animate.textures = this.animateSet[this.status]
       this.animate.gotoAndPlay(0)
       this.textureStatus = this.status
@@ -94,6 +100,9 @@ class Player {
     switch (status) {
       case 'walk' :
         this.walk()
+        break
+      case 'interact' :
+        this.interact()
         break
       default :
         this.idle()
@@ -105,6 +114,11 @@ class Player {
   idle() {
     this.animate.x += 0
     this.status = 'idle'
+  }
+
+  interact() {
+    this.animate.x += 0
+    this.status = 'interact'
   }
 }
 

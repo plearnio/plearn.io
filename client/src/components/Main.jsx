@@ -2,16 +2,23 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
 import Player from '../classes/Player'
-import BuildDummyObject from '../classes/BuildDummyObject'
+import Effect from '../classes/Effect'
+import Background from '../classes/Background'
 import BuildRealObject from '../classes/BuildRealObject'
 
 import checkInteract from '../game_methods/checkInteract'
+import showEffect from '../game_methods/showEffect'
 
 const PIXI = require('pixi.js')
 
 PIXI.utils.sayHello('start pixi')
 
 const app = new PIXI.Application(768, 640)
+const objectContainer = new PIXI.Container()
+const backgroundContainer = new PIXI.Container()
+const playerContainer = new PIXI.Container()
+const landContainer = new PIXI.Container()
+const effectContainer = new PIXI.Container()
 
 class Main extends Component {
 
@@ -20,14 +27,29 @@ class Main extends Component {
   }
 
   componentDidMount() {
-    const { onInteract, onWalk, onIdle, status} = this.props
+    app.stage.addChild(backgroundContainer);
+    app.stage.addChild(objectContainer);
+    app.stage.addChild(effectContainer);
+    app.stage.addChild(landContainer);
+    app.stage.addChild(playerContainer);
+    const {
+      showObject,
+      onWalk,
+      onIdle,
+      onInteract,
+      status,
+      activeObject,
+      addItem,
+      setAction
+    } = this.props
     const getMousePosition = () => app.renderer.plugins.interaction.mouse.global
-    const background = new BuildDummyObject('background', app.renderer.width, app.renderer.height, 0, 0, 0x1099bb)
-
+    const background = new Background('background', 'hill', app.renderer.height, app.renderer.width, 7)
+    // effect have unit in pixel in term of width and height
     let mousePosition = getMousePosition()
     let i = 0
-
-    app.stage.addChild(background.Element)
+    for (i = 0; i < background.Element.length; i += 1) {
+      backgroundContainer.addChild(background.Element[i])
+    }
     document.getElementById('test').appendChild(app.view)
 
     PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST
@@ -39,58 +61,80 @@ class Main extends Component {
       const TILE = 64
 
       const AllObjects = []
-
+      const heroWalk = new Player('hero-walk', { x: 1 * TILE, y: BASE * TILE }, 2)
       // create land
       const Land = []
       for (i = 0; i < 12; i += 1) {
-        Land.push(new BuildRealObject('land', 1, TILE, i * TILE, LAND, 1, 'distland', 0, 1))
-      }
-      // add to stage
-
-      // AllObjects.push(new BuildDummyObject('grass', 1, 1, 0, LAND - 1, 0x668866))
-      AllObjects.push(new BuildRealObject('tree', 1, 120, 2 * TILE, 9, 6, 'tree', -5, 3))
-      AllObjects.push(new BuildRealObject('grass', 0.5, 27, 1 * TILE, LAND - 1, 1, 'grass', 0, 1.5))
-      AllObjects.push(new BuildRealObject('grass', 0.5, 27, 0 * TILE, LAND - 1, 1, 'grass', 0, 1.5))
-      AllObjects.push(new BuildRealObject('grass', 0.5, 27, 5 * TILE, LAND - 1, 1, 'grass', 0, 1.5))
-
-      const heroWalk = new Player('hero-walk', { x: 1 * TILE, y: BASE * TILE }, 2)
-
-      for (i = 0; i < AllObjects.length; i += 1) {
-        app.stage.addChild(AllObjects[i].Element)
+        Land.push(new BuildRealObject('land', 1, TILE, i, LAND, 1, 'distland', 0, 1))
+        landContainer.addChild(Land[i].Element)
         checkInteract({
-          object: AllObjects[i],
-          heroWalk,
-          setStore: onWalk,
-          status: 'walk',
-          onInteract
-        })
-      }
-
-      for (i = 0; i < Land.length; i += 1) {
-        app.stage.addChild(Land[i].Element)
-        checkInteract({
+          stage: landContainer,
           object: Land[i],
           heroWalk,
           setStore: onWalk,
           status: 'walk',
-          onInteract
+          showObject
+        })
+      }
+      // add to stage
+
+      // AllObjects.push(new BuildDummyObject('grass', 1, 1, 0, LAND - 1, 0x668866))
+      // width in TILE, height in pixels, posx , pos Y, frame image, name url,
+      AllObjects.push(new BuildRealObject('tree', 1, 120, 3, 9, 6, 'tree', -5, 3, false))
+      AllObjects.push(new BuildRealObject('grass', 0.5, 27, 5, LAND - 1, 1, 'grass', 0, 1.5, true))
+      AllObjects.push(new BuildRealObject('grass', 0.5, 27, 11, LAND - 1, 1, 'grass', 0, 1.5, true))
+      AllObjects.push(new BuildRealObject('grass', 0.5, 27, 2, LAND - 1, 1, 'grass', 0, 1.5, true))
+      // Shadows are the lowest
+      for (i = 0; i < AllObjects.length; i += 1) {
+        objectContainer.addChild(AllObjects[i].Element)
+        if (AllObjects[i].Effect) {
+          checkInteract({
+            stage: objectContainer,
+            object: AllObjects[i],
+            heroWalk,
+            setStore: onWalk,
+            status: 'walk',
+            showObject
+          })
+        }
+        checkInteract({
+          stage: objectContainer,
+          object: AllObjects[i],
+          heroWalk,
+          setStore: onWalk,
+          status: 'walk',
+          showObject
         })
       }
       checkInteract({
+        stage: backgroundContainer,
         object: background,
         heroWalk,
         setStore: onIdle,
         status: 'idle',
-        onInteract
+        showObject,
+        bg: true
       })
-      app.stage.addChild(heroWalk.animate)
+      playerContainer.addChild(heroWalk.animate)
       app.ticker.add(() => {
-        const { status } = this.props
+        const { status, activeObject } = this.props
         mousePosition = getMousePosition()
         mousePosition.x = parseInt(mousePosition.x, 10)
         mousePosition.y = parseInt(mousePosition.y, 10)
         heroWalk.checkSide(mousePosition)
-        heroWalk.checkStatus(status)
+        const playerStatus = heroWalk.checkStatus(status, activeObject)
+        if (playerStatus === 'interact') {
+          console.log('hero interact')
+          showEffect({
+            stage: effectContainer,
+            object: activeObject,
+            setAction,
+            addItem
+          })
+          onIdle()
+          heroWalk.status = 'idle'
+        }
+        background.parallax(heroWalk.animate.x)
       })
 
       app.start()
@@ -114,7 +158,8 @@ class Main extends Component {
 const mapStateToProps = (state) => {
   return {
     status: state.status,
-    activeObject: state.activeObject
+    activeObject: state.activeObject,
+    action: state.action
   }
 }
 const mapDispatchToProps = (dispatch) => {
@@ -125,8 +170,17 @@ const mapDispatchToProps = (dispatch) => {
     onIdle: () => {
       dispatch({ type: 'IDLE' })
     },
-    onInteract: (object) => {
+    onInteract: () => {
+      dispatch({ type: 'INTERACT' })
+    },
+    setAction: (action) => {
+      dispatch({ type: 'SET_ACTION', payload: action })
+    },
+    showObject: (object) => {
       dispatch({ type: 'SET_OBJECT', payload: object })
+    },
+    addItem: (object) => {
+      dispatch({ type: 'ADD_ITEM', payload: object })
     }
   }
 }

@@ -21,7 +21,20 @@ app.get('/getAnimate/:id/:name/:frame', (req, res) => {
 })
 app.get('/getGame/:id/:name/', (req, res) => {
   if (parseInt(req.params.id, 10) === 1) {
+    console.log(req.params.name)
     res.sendFile(path.resolve(`public/assets/${req.params.name}.png`))
+  } else res.send('Access denied')
+})
+app.get('/getGame/:id/:background/:layer', (req, res) => {
+  if (parseInt(req.params.id, 10) === 1) {
+    console.log(req.params.name)
+    res.sendFile(path.resolve(`public/assets/${req.params.background}/${req.params.layer}.png`))
+  } else res.send('Access denied')
+})
+app.get('/getGame/:id/effect/:name', (req, res) => {
+  if (parseInt(req.params.id, 10) === 1) {
+    console.log(req.params.name)
+    res.sendFile(path.resolve(`public/assets/effect/${req.params.name}.png`))
   } else res.send('Access denied')
 })
 
