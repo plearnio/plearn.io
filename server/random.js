@@ -8,7 +8,7 @@ const objMapArray = [
     rarity: 1,
     types:
     [
-      { name: 'grass1', rarity: 6, numTile: 1, color: '#09F905' }
+      { name: 'grass1', rarity: 1, numTile: 1, color: '#09F905' }
     ]
   },
   {
@@ -16,7 +16,7 @@ const objMapArray = [
     rarity: 2,
     types:
     [
-      { name: 'bush1', rarity: 6, numTile: 1, color: '#09F905' }
+      { name: 'bush1', rarity: 1, numTile: 1, color: '#09F905' }
     ]
   },
   {
@@ -155,7 +155,7 @@ const genRandomObj = (numberOfTile) => {
   return ranObjArray
 }
 
-const randomPositionObjOnMap = (randomObjTypeArray, numArea, numTilePerArea) => {
+const randomPositionObjOnMap = (randomObjTypeArray, numArea, numTilePerArea, maxTilePerArea) => {
   let currentTile
   let currObj = -1
   const objectMapArray = []
@@ -166,32 +166,49 @@ const randomPositionObjOnMap = (randomObjTypeArray, numArea, numTilePerArea) => 
     //  Each tile in one area
     for (currentTile = 0; randomObjTypeArray[currObj + 1].numTile + currentTile <= numTilePerArea; currentTile += randomObjTypeArray[currObj].numTile) {
       currObj += 1
-      //  add 1 obj
-      objArea.push(randomObjTypeArray[currObj])
+      //  add 1 ob
+      const dummy = Object.assign({}, randomObjTypeArray[currObj]);
+      objArea.push(dummy)
       //  next obj
     }
 
     //  If there are spaces, add empty object
-    if (currentTile !== numTilePerArea) {
-      for (let i = 0; i < numTilePerArea - currentTile; i += 1) {
-        objArea.push({})
+    if (currentTile <= maxTilePerArea) {
+      for (let i = 0; i < maxTilePerArea - currentTile; i += 1) {
+        //objArea.push({})
+        objArea.push({name:'emptyObj', numTile:1})
       }
       //  Shuffle empty space in 1 area
       objArea = _.shuffle(objArea)
     }
-    objectMapArray.push(objArea)
+
+    let newObjArea = []
+    //  Add position x to each object
+    let indexTile = 0
+    for (let obj = 0; obj < objArea.length; obj += 1) {
+      objArea[obj].posX = indexTile
+      newObjArea.push(objArea[obj])
+      indexTile += objArea[obj].numTile
+    }
+
+    // Remove empty emptyObj
+    newObjArea = _.pullAllBy(newObjArea, [{ 'name': 'emptyObj'}], 'name');
+
+    //  add obj to array
+    objectMapArray.push(newObjArea)
   }
   return objectMapArray
 }
 
 const generateObj = () => {
   //  initial number of area and tiles per one are
-  const numArea = 10 // 10
-  const numTilePerArea = 24 // 24
+  const numArea = 1 // 10
+  const numTilePerArea = 12 // 24
+  const maxTilePerArea = 12
   //  random obj
   const randomObjTypeArray = genRandomObj(numArea * numTilePerArea)
   //  random positio in map
-  const objectOnMap = randomPositionObjOnMap(randomObjTypeArray, numArea, numTilePerArea)
+  const objectOnMap = randomPositionObjOnMap(randomObjTypeArray, numArea, numTilePerArea, maxTilePerArea)
   return objectOnMap
 }
 
