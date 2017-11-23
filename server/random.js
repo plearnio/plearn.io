@@ -2,62 +2,445 @@
 const _ = require('lodash')
 
 //  Global: object in map
-const objMapArray = [
+
+const objInMapArray = [
   {
-    objName: 'grass',
+    name: 'grass',
     rarity: 1,
     types:
     [
-      { name: 'grass1', rarity: 1, numTile: 1, color: '#09F905' }
+      {
+        "id":0,
+        "name":"grass1",
+        "sciName": "Echinochloa muricata",
+        "description":"A low, green plant that grows naturally over a lot of the earth's surface, having groups of very thin leaves that grow close together in large numbers",
+        "rarity": 1,
+        "width": 32,
+        "height":27,
+        "pos":1,
+        "url":"grass1",
+        "extra":0,
+        "scale":2,
+        "actions":[
+          {
+          "name":"move",
+          "item":[]
+          },
+          {
+            "name":"gather",
+            "item":[
+              {
+                "id":0,
+                "name":"grass1",
+                "width": 32,
+                "height":27,
+                "pos":1,
+                "url":"grass1",
+                "extra":0,
+                "scale":2
+              }
+            ]
+          }
+        ]
+      }
     ]
   },
   {
-    objName: 'bush',
+    name: 'bush',
     rarity: 2,
     types:
     [
-      { name: 'bush1', rarity: 1, numTile: 1, color: '#09F905' }
+      {
+        "id":0,
+        "name":"bush1",
+        "sciName": "Atriplex canescens ",
+        "description":"A plant with many small branches growing either directly from the ground or from a hard stem, giving the plant a rounded shape",
+        "rarity": 1,
+        "width":454,
+        "height":567,
+        "pos":1,
+        "url":"bush1",
+        "extra":0,
+        "scale":0.14096916299,
+        "actions":[
+          {
+          "name":"move",
+          "item":[]
+          }
+        ]
+      }
     ]
   },
   {
-    objName: 'twig',
+    name: 'twig',
     rarity: 3,
     types:
     [
-      { name: 'twig1', rarity: 1, numTile: 3, color: '#09F905' },
-      { name: 'twig2', rarity: 3, numTile: 1, color: '#1FA20F' },
-      { name: 'twig3', rarity: 6, numTile: 1, color: '#1E0ECF' }
-    ]
+      {
+        "id":0,
+        "name":"Sacred fig twig",
+        "sciName": "Ficus religiosa",
+        "description":"A twig of Sacred fig",
+        "rarity": 1,
+        "width": 1024,
+        "height":1528,
+        "pos":1,
+        "url":"twig1",
+        "extra":0,
+        "scale":0.0625,
+        "actions":[
+          {
+          "name":"move",
+          "item":[]
+          },
+          {
+            "name":"gather",
+            "item":[
+              {
+                "id":0,
+                "name":"twig1",
+                "width": 197,
+                "height":254,
+                "pos":1,
+                "url":"twig1",
+                "extra":0,
+                "scale":0.32487309644
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id":0,
+        "name":"Apple tree twig",
+        "sciName": "Malus pumila",
+        "description":"A twig of apple tree",
+        "rarity": 3,
+        "width": 1024,
+        "height":2806,
+        "pos":1,
+        "url":"twig2",
+        "extra":0,
+        "scale":0.0625,
+        "actions":[
+          {
+          "name":"move",
+          "item":[]
+          },
+          {
+            "name":"gather",
+            "item":[
+              {
+                "id":0,
+                "name":"twig2",
+                "width": 430,
+                "height":396,
+                "pos":1,
+                "url":"twig2",
+                "extra":0,
+                "scale":0.14883721
+              }
+            ]
+          }
+        ]
+      },{
+        "id":0,
+        "name":"Pine twig",
+        "sciName": "Pinus",
+        "description":"A twig of pine",
+        "rarity": 6,
+        "width": 1479,
+        "height":2000,
+        "pos":1,
+        "url":"twig3",
+        "extra":0,
+        "scale":0.0432724814,
+        "actions":[
+          {
+          "name":"move",
+          "item":[]
+          },
+          {
+            "name":"gather",
+            "item":[
+              {
+                "id":0,
+                "name":"twig3",
+                "width": 636,
+                "height":890,
+                "pos":1,
+                "url":"twig3",
+                "extra":0,
+                "scale":0.10062893081
+              }
+            ]
+          }
+        ]
+      }]
   },
   {
-    objName: 'flower',
+    name: 'flower',
     rarity: 4,
     types:
     [
-      { name: 'flower1', rarity: 1, numTile: 1, color: '#F781F3' },
-      { name: 'flower2', rarity: 10, numTile: 1, color: '#F3F781' },
-      { name: 'flower3', rarity: 25, numTile: 1, color: '#81F781' },
-      { name: 'flower4', rarity: 64, numTile: 1, color: '#2E2EFE' }
-    ]
+      {
+        "id":0,
+        "name":"Indian shot",
+        "sciName": "Canna indica",
+        "description":"Canna indica is a perennial growing to between 0.5 m and 2.5 m, depending on the variety. It is hardy to zone 10 and is frost tender. ",
+        "rarity": 1,
+        "width": 1024,
+        "height":1024,
+        "pos":1,
+        "url":"flower1",
+        "extra":0,
+        "scale":0.0625,
+        "actions":[
+          {
+          "name":"move",
+          "item":[]
+          },
+          {
+            "name":"gather",
+            "item":[
+              {
+                "id":0,
+                "name":"flower1",
+                "width": 1024,
+                "height":1024,
+                "pos":1,
+                "url":"flower1",
+                "extra":0,
+                "scale":0.0625
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id":0,
+        "name":"Saint John's wort ",
+        "sciName": "Hypericum perforatum",
+        "description":"Hypericum perforatum is native to parts of Europe and Asia[6] but has spread to temperate regions worldwide as a cosmopolitan invasive weed.",
+        "rarity": 10,
+        "width": 1024,
+        "height":1024,
+        "pos":1,
+        "url":"flower2",
+        "extra":0,
+        "scale":0.0625,
+        "actions":[
+          {
+          "name":"move",
+          "item":[]
+          },
+          {
+            "name":"gather",
+            "item":[
+              {
+                "id":0,
+                "name":"flower2",
+                "width": 1024,
+                "height":1024,
+                "pos":1,
+                "url":"flower2",
+                "extra":0,
+                "scale":0.0625
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id":0,
+        "name":"Prickly rose",
+        "sciName": "Rosa acicularis",
+        "description":"Rosa acicularis, also known as the prickly wild rose, the prickly rose, the bristly rose, the wild rose and the Arctic rose, is a species of wild rose with a Holarctic distribution in northern regions of Asia,[2] Europe,[3] and North America.",
+        "rarity": 25,
+        "width": 336,
+        "height":455,
+        "pos":1,
+        "url":"flower3",
+        "extra":0,
+        "scale":0.19047619047,
+        "actions":[
+          {
+          "name":"move",
+          "item":[]
+          },
+          {
+            "name":"gather",
+            "item":[
+              {
+                "id":0,
+                "name":"flower3",
+                "width": 336,
+                "height":455,
+                "pos":1,
+                "url":"flower3",
+                "extra":0,
+                "scale":0.19047619047
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id":0,
+        "name":"Titan arum",
+        "sciName": "Amorphophallus titanum",
+        "description":"titan arum, is a flowering plant with the largest unbranched inflorescence in the world. ",
+        "rarity": 64,
+        "width": 1800,
+        "height":1384,
+        "pos":1,
+        "url":"flower4",
+        "extra":0,
+        "scale":0.03555555555,
+        "actions":[
+          {
+          "name":"move",
+          "item":[]
+          },
+          {
+            "name":"gather",
+            "item":[
+              {
+                "id":0,
+                "name":"flower4",
+                "width": 1800,
+                "height":1384,
+                "pos":1,
+                "url":"flower4",
+                "extra":0,
+                "scale":0.03555555555
+              }
+            ]
+          }
+        ]
+      }]
   },
   {
-    objName: 'rock',
+    name: 'rock',
     rarity: 5,
     types:
     [
-      { name: 'rock1', rarity: 2, numTile: 2, color: '#09F905' },
-      { name: 'rock2', rarity: 8, numTile: 1, color: '#09F905' }
-    ]
+      {
+        "id":0,
+        "name":"rock",
+        "sciName": "-",
+        "description":"common rock",
+        "rarity": 2,
+        "width": 256,
+        "height":196,
+        "pos":1,
+        "url":"rock1",
+        "extra":0,
+        "scale":0.25,
+        "actions":[
+          {
+          "name":"move",
+          "item":[]
+          },
+          {
+            "name":"gather",
+            "item":[
+              {
+                "id":0,
+                "name":"rock1",
+                "width": 256,
+                "height":196,
+                "pos":1,
+                "url":"rock1",
+                "extra":0,
+                "scale":0.25
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id":0,
+        "name":"Igneous",
+        "sciName": "-",
+        "description":"Igneous rock or magmatic rock, is one of the three main rock types, the others being sedimentary and metamorphic. ",
+        "rarity": 8,
+        "width": 164,
+        "height":164,
+        "pos":1,
+        "url":"rock2",
+        "extra":0,
+        "scale":0.39024390243,
+        "actions":[
+          {
+          "name":"move",
+          "item":[]
+          }
+        ]
+      }]
   },
   {
-    objName: 'tree',
+    name: 'tree',
     rarity: 6,
     types:
     [
-      { name: 'tree1', rarity: 1, numTile: 3, color: '#09F905' },
-      { name: 'tree2', rarity: 3, numTile: 3, color: '#1FA20F' },
-      { name: 'tree3', rarity: 6, numTile: 5, color: '#1E0ECF' }
-    ]
+      {
+        "id":0,
+        "name":"Sacred fig",
+        "sciName": "Ficus religiosa",
+        "description":"Sacred fig is a species of fig native to the Indian subcontinent,[2] and Indochina.[3] It belongs to the Moraceae, the fig or mulberry family. It is also known as the bodhi tree,[4] pippala tree, peepul tree,[2] peepal tree or ashwattha tree (in India and Nepal).",
+        "rarity": 1,
+        "width":64,
+        "height":120,
+        "pos":1,
+        "url":"tree1",
+        "extra":0,
+        "scale":1,
+        "actions":[
+          {
+          "name":"move",
+          "item":[]
+          }
+        ]
+      },
+      {
+        "id":0,
+        "name":"Apple Tree",
+        "sciName": "Malus pumila",
+        "description":"The apple tree (Malus pumila, commonly and erroneously called Malus domestica) is a deciduous tree in the rose family best known for its sweet, pomaceous fruit, the apple. ",
+        "rarity": 3,
+        "width":454,
+        "height":567,
+        "pos":1,
+        "url":"tree2",
+        "extra":0,
+        "scale":0.14096916299,
+        "actions":[
+          {
+          "name":"move",
+          "item":[]
+          }
+        ]
+      },
+      {
+        "id":0,
+        "name":"Pine",
+        "sciName": "Pinus",
+        "description":"An evergreen tree (= one that never loses its leaves) that grows in cooler areas of the world:",
+        "rarity": 6,
+        "width":454,
+        "height":567,
+        "pos":1,
+        "url":"tree3",
+        "extra":0,
+        "scale":0.14096916299,
+        "actions":[
+          {
+          "name":"move",
+          "item":[]
+          }
+        ]
+      }]
   }
 ]
 
@@ -126,15 +509,33 @@ const createRaritySortedObjTypeArray = (objArray) => {
   const rarityArray = []
   objArray.map((obj) => {
     const rarityObj = {}
-    rarityObj.name = obj.objName
+    rarityObj.name = obj.name
     rarityObj.types = createRaritySortedArray(obj.types)
     rarityArray.push(rarityObj)
   })
   return rarityArray
 }
 
+const calculateNumTile = (objArray) => {
+  const pixelPerTile = 64
+  for (let i = 0; i < objArray.length; i += 1) {
+
+    for (let j = 0; j < objArray[i].types.length; j += 1) {
+      console.log('j: '+j)
+      console.log('objArray[i].types.length: '+objArray[i].types.length)
+      console.log(objArray[i].types[j].width * objArray[i].types[j].scale)
+      const numbOfTile = Math.ceil((objArray[i].types[j].width * objArray[i].types[j].scale) / pixelPerTile)
+      objArray[i].types[j].numTile = numbOfTile
+    }
+  }
+  return objArray
+}
 const genRandomObj = (numberOfTile) => {
   const ranObjArray = []
+  //  Calculate and add property of numtile for every object
+  //let objMapArray = objInMapArray
+  const objMapArray = calculateNumTile(objInMapArray)
+  console.log(objMapArray)
   //  Create Rarity Sorted Array for every object   | output: [6,11,15,18,20,21]
   const raritySortedObjArray = createRaritySortedArray(objMapArray)
   //  Create Rarity Sorted Array for type of object | output: [{name: grass, types: [1,2]}, {}, ...]
@@ -146,7 +547,7 @@ const genRandomObj = (numberOfTile) => {
     //  Generate Randomed Object
     const ranObj = genObjFromBinarySearchRarity(raritySortedObjArray, objMapArray)
     //  Find obj that match to obj 'name' from rarity sorted object type array
-    const ranObjWithRarityArray = _.find(raritySortedObjTypeArray, { 'name': ranObj.objName })
+    const ranObjWithRarityArray = _.find(raritySortedObjTypeArray, { 'name': ranObj.name })
     //  Generate Randomed Type Object
     ranObjType = genObjFromBinarySearchRarity(ranObjWithRarityArray.types, ranObj.types)
     //  Add result object into array
@@ -176,7 +577,7 @@ const randomPositionObjOnMap = (randomObjTypeArray, numArea, numTilePerArea, max
     if (currentTile <= maxTilePerArea) {
       for (let i = 0; i < maxTilePerArea - currentTile; i += 1) {
         //objArea.push({})
-        objArea.push({name:'emptyObj', numTile:1})
+        objArea.push({ name: 'emptyObj', numTile: 1 })
       }
       //  Shuffle empty space in 1 area
       objArea = _.shuffle(objArea)
@@ -186,7 +587,7 @@ const randomPositionObjOnMap = (randomObjTypeArray, numArea, numTilePerArea, max
     //  Add position x to each object
     let indexTile = 0
     for (let obj = 0; obj < objArea.length; obj += 1) {
-      objArea[obj].posX = indexTile
+      objArea[obj].pos = indexTile
       newObjArea.push(objArea[obj])
       indexTile += objArea[obj].numTile
     }
@@ -203,12 +604,13 @@ const randomPositionObjOnMap = (randomObjTypeArray, numArea, numTilePerArea, max
 const generateObj = () => {
   //  initial number of area and tiles per one are
   const numArea = 1 // 10
-  const numTilePerArea = 12 // 24
+  const numTilePerArea = 6 // 24
   const maxTilePerArea = 12
   //  random obj
   const randomObjTypeArray = genRandomObj(numArea * numTilePerArea)
   //  random positio in map
   const objectOnMap = randomPositionObjOnMap(randomObjTypeArray, numArea, numTilePerArea, maxTilePerArea)
+  //{"name":"tree3","rarity":6,"numTile":5,"color":"#1E0ECF","pos":0}
   return objectOnMap
 }
 
