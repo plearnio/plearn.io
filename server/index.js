@@ -13,6 +13,7 @@ const bodyParser = require('body-parser')
 const session = require('express-session')
 
 const configDB = require('./config/database.js')
+const random = require('./random')
 
 const PORT = 4000
 
@@ -47,6 +48,12 @@ app.use(flash())
 
 require('./routes/authen.js')(app, passport)
 
+app.get('/generateWorld/:id/', (req, res) => {
+  if (parseInt(req.params.id, 10) === 1) {
+    const numRandom = (random())
+    res.json(numRandom)
+  } else res.send('Access denied')
+})
 app.listen(PORT, () => {
   console.log('Example app listening on port 4000!')
 })

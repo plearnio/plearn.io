@@ -6,9 +6,9 @@ import { Provider } from 'react-redux'
 import App from './App'
 import registerServiceWorker from './registerServiceWorker'
 
-import worldReducer from './reducers/world'
+import allReducer from './reducers/index'
 
-const store = createStore(worldReducer, {
+const store = createStore(allReducer, {
   status: 'idle',
   activeObject: {
     name: 'Nothing'
