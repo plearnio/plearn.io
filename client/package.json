@@ -3,10 +3,22 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "bootstrap": "^3.3.7",
+    "pixi.js": "^4.5.5",
     "react": "^15.6.1",
-    "react-dom": "^15.6.1"
+    "react-bootstrap": "^0.31.2",
+    "react-dom": "^15.6.1",
+    "react-progress-button": "^5.1.0",
+    "react-redux": "^5.0.6",
+    "redux": "^3.7.2",
+    "styled-components": "^2.1.2"
   },
   "devDependencies": {
+    "eslint": "^3.19.0",
+    "eslint-config-airbnb": "^14.1.0",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-jsx-a11y": "^4.0.0",
+    "eslint-plugin-react": "^6.10.0",
     "react-scripts": "1.0.12"
   },
   "scripts": {
