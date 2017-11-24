@@ -1,7 +1,7 @@
 const PIXI = require('pixi.js')
 
 class BuildRealObject {
-  constructor(id, name, width, height, posX, posY, frame, url, extra, scale, canGather) {
+  constructor(id, name, width, height, posX, posY, frame, url, extra, scale, actions) {
     
     const sprite = PIXI.Sprite.fromImage(
       `http://localhost:4000/getGame/1/${url}/`,
@@ -10,7 +10,7 @@ class BuildRealObject {
     const TILE = 64
     const setTexture = []
     for (let i = 0; i < frame; i += 1) {
-      const texture = new PIXI.Texture(sprite.texture, new PIXI.Rectangle(width * 64 * i, 0, width * 64, height))
+      const texture = new PIXI.Texture(sprite.texture, new PIXI.Rectangle(width * i, 0, width, height))
       setTexture.push(texture)
     }
     this.Element = new PIXI.extras.AnimatedSprite(setTexture)
@@ -26,7 +26,8 @@ class BuildRealObject {
     this.Element.zIndex = 0
     this.name = name
     this.id = id
-    this.canGather = canGather
+    this.canGather = true
+    this.actions = actions
     this.picture = `http://localhost:4000/getGame/1/${url}/`
   }
 }

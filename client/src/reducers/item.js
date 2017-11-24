@@ -5,14 +5,16 @@ const item = (
     listItem: [],
     craftItem: [],
     objIdNow: 0,
-    outputCraftItem: null
+    outputCraftItem: null,
+    holdItem: null
   }, action) => {
   const craftItem = () => {
     if (state.craftItem.length > 0) {
       const d = new Date();
       const timeMillisec = d.getTime()
       const buildTimeSec = 10; // in second unit
-      const outputItem = new Item(0, 'grass', 0.5, 27, 1, 'grass', 1.5)
+      const outputItem = new Item(0, 'grass', 0.5, 27, 1, 'grass1', 1.5)
+      outputItem.buildTimeSec = buildTimeSec
       outputItem.startTime = timeMillisec
       outputItem.nowTime = timeMillisec
       outputItem.endTime = timeMillisec + (buildTimeSec * 1000)
@@ -78,6 +80,12 @@ const item = (
       newState = {
         ...state,
         outputCraftItem: null
+      }
+      break
+    case 'ADD_HOLD_ITEM' :
+      newState = {
+        ...state,
+        holdItem: action.payload
       }
       break
     default: break

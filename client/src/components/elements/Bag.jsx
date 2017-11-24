@@ -3,16 +3,17 @@ import { connect } from 'react-redux'
 import styled from 'styled-components'
 
 const Button = styled.button`
-  background-color: #282828;
+  background-color: #fff;
+  border: 1px solid #bbb;
   padding: 10px;
   &:hover {
-    background-color:#787878;
+    background-color:#ddd;
   }
 `
 const Panel = styled.div`
   padding: 20px;
-  border: 1px solid #898989;
-  background-color: #444;
+  border: 1px solid #ddd;
+  background-color: #eee;
 `
 
 const Slot = ({ item, addToCraft }) => {

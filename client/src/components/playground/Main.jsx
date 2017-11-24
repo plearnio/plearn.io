@@ -15,11 +15,41 @@ PIXI.utils.sayHello('start pixi')
 const app = new PIXI.Application(768, 640)
 const objectContainer = new PIXI.Container()
 const backgroundContainer = new PIXI.Container()
-const playerContainer = new PIXI.Container()
 const landContainer = new PIXI.Container()
 const effectContainer = new PIXI.Container()
+const notPlayerContainer = new PIXI.Container()
+const playerContainer = new PIXI.Container()
 let objIdNow = 0
 
+const allObj = [
+  {
+    id: 0,
+    name: 'grass1',
+    width:  32,
+    height: 27,
+    pos: 1,
+    url: 'grass1',
+    extra: 0,
+    scale: 2,
+    actions: [
+      {
+        name: 'move',
+        item: []
+      }, {
+        name: 'gather',
+        item: [{
+          id: 0,
+          name: 'grass1',
+          width: 32,
+          height: 27,
+          pos: 1,
+          url: 'grass1',
+          extra: 0,
+          scale: 2
+        }]
+      }
+    ]
+  }]
 class Main extends Component {
 
   constructor(props) {
@@ -27,10 +57,16 @@ class Main extends Component {
   }
 
   componentDidMount() {
-    app.stage.addChild(backgroundContainer);
-    app.stage.addChild(objectContainer);
-    app.stage.addChild(effectContainer);
-    app.stage.addChild(landContainer);
+    if (app.renderer instanceof PIXI.CanvasRenderer) {
+      console.log('canvas')
+    } else {
+      console.log('webGL')
+    }
+    notPlayerContainer.addChild(backgroundContainer);
+    notPlayerContainer.addChild(objectContainer);
+    notPlayerContainer.addChild(effectContainer);
+    notPlayerContainer.addChild(landContainer);
+    app.stage.addChild(notPlayerContainer)
     app.stage.addChild(playerContainer);
     const {
       status,
@@ -65,25 +101,47 @@ class Main extends Component {
       // create land
       const Land = []
       for (i = 0; i < 12; i += 1) {
-        Land.push(new BuildRealObject(objIdNow, 'land', 1, TILE, i, LAND, 1, 'distland', 0, 1))
+        Land.push(new BuildRealObject(objIdNow, 'land', TILE, TILE, i, LAND, 1, 'distland', 0, 1, [{
+          name: 'move',
+          item: []
+        }]))
         landContainer.addChild(Land[i].Element)
         checkInteract({
           stage: landContainer,
           object: Land[i],
           heroWalk,
           setStore: onWalk,
-          status: 'walk',
+          setAction,
           showObject
         })
       }
-      // add to stage
 
-      // AllObjects.push(new BuildDummyObject('grass', 1, 1, 0, LAND - 1, 0x668866))
       // width in TILE, height in pixels, posx , pos Y, frame image, name url,
-      AllObjects.push(new BuildRealObject(objIdNow, 'tree', 1, 120, 3, 9, 6, 'tree', -5, 3, false))
-      AllObjects.push(new BuildRealObject(objIdNow, 'grass', 0.5, 27, 5, LAND - 1, 1, 'grass', 0, 1.5, true))
-      AllObjects.push(new BuildRealObject(objIdNow, 'grass', 0.5, 27, 11, LAND - 1, 1, 'grass', 0, 1.5, true))
-      AllObjects.push(new BuildRealObject(objIdNow, 'grass', 0.5, 27, 2, LAND - 1, 1, 'grass', 0, 1.5, true))
+      for (i = 0; i < allObj.length; i += 1) {
+        AllObjects.push(new BuildRealObject(
+          allObj[i].id,
+          allObj[i].name,
+          allObj[i].width,
+          allObj[i].height,
+          allObj[i].pos, // posX
+          LAND - 1, // posY
+          1,
+          allObj[i].url,
+          allObj[i].extra,
+          allObj[i].scale,
+          allObj[i].actions
+        ))
+      }
+      // AllObjects.push(new BuildRealObject(objIdNow, 'tree', TILE, 120, 3, 9, 6, 'tree', -5, 2, false))
+      // AllObjects.push(new BuildRealObject(objIdNow, 'grass', 32, 27, 5, LAND - 1, 1, 'grass', 0, 1.5, true))
+      // AllObjects.push(new BuildRealObject(objIdNow, 'grass', 32, 27, 11, LAND - 1, 1, 'grass', 0, 1.5, true))
+      // AllObjects.push(new BuildRealObject(objIdNow, 'grass', 32, 27, 2, LAND - 1, 1, 'grass', 0, 1.5, true))
+
+      // AllObjects.push(new BuildRealObject(objIdNow, 'big_rock', 164, 164, 9, LAND - 1, 1, 'big_rock', 0, 0.3, true))
+      // AllObjects.push(new BuildRealObject(objIdNow, 'rock_on_ground', 256, 196, 7, LAND - 1, 1, 'rock_on_ground', 0, 0.2, true))
+      // AllObjects.push(new BuildRealObject(objIdNow, 'twig', 454, 567, 1, LAND - 1, 1, 'twig', 0, 0.1, true))
+      // AllObjects.push(new BuildRealObject(objIdNow, 'twig', 454, 567, 6, LAND - 1, 1, 'twig', 0, 0.1, true))
+      // AllObjects.push(new BuildRealObject(objIdNow, 'big_rock', 164, 164, 8, LAND - 1, 1, 'big_rock', 0, 0.3, true))
       // Shadows are the lowest
       for (i = 0; i < AllObjects.length; i += 1) {
         objectContainer.addChild(AllObjects[i].Element)
@@ -93,7 +151,7 @@ class Main extends Component {
             object: AllObjects[i],
             heroWalk,
             setStore: onWalk,
-            status: 'walk',
+            setAction,
             showObject
           })
         }
@@ -102,7 +160,7 @@ class Main extends Component {
           object: AllObjects[i],
           heroWalk,
           setStore: onWalk,
-          status: 'walk',
+          setAction,
           showObject
         })
       }
@@ -111,28 +169,32 @@ class Main extends Component {
         object: background,
         heroWalk,
         setStore: onIdle,
-        status: 'idle',
+        setAction,
         showObject,
         bg: true
       })
       playerContainer.addChild(heroWalk.animate)
       app.ticker.add(() => {
-        const { status, activeObject } = this.props
+        const { status, activeObject, setStatus, action } = this.props
         mousePosition = getMousePosition()
         mousePosition.x = parseInt(mousePosition.x, 10)
         mousePosition.y = parseInt(mousePosition.y, 10)
         heroWalk.checkSide(mousePosition)
-        const playerStatus = heroWalk.checkStatus(status, activeObject)
-        if (playerStatus === 'interact') {
-          console.log('hero interact')
-          showEffect({
-            stage: effectContainer,
-            object: activeObject,
-            setAction,
-            addItem
-          })
-          onIdle()
-          heroWalk.status = 'idle'
+        const playerStatus = heroWalk.checkStatus(status, setStatus)
+        if (action === 'gather') {
+          if (Math.abs(heroWalk.animate.x - activeObject.Element.x) <= TILE*2) {
+            showEffect({
+              stage: effectContainer,
+              object: activeObject,
+              setAction,
+              addItem,
+              showObject
+            })
+            setAction(null)
+            console.log(action)
+            onIdle()
+            heroWalk.status = 'idle'
+          }
         }
         background.parallax(heroWalk.animate.x)
       })
@@ -175,6 +237,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     setAction: (action) => {
       dispatch({ type: 'SET_ACTION', payload: action })
+    },
+    setStatus: (status) => {
+      dispatch({ type: 'SET_STATUS', payload: status })
     },
     showObject: (object) => {
       dispatch({ type: 'SET_OBJECT', payload: object })

@@ -1,10 +1,13 @@
+import showEffect from '../game_methods/showEffect'
+
 const PIXI = require('pixi.js')
+
 
 class Player {
   constructor(name, pos, speed) {
     const allStatus = [
       {
-        name: 'walk',
+        name: 'move',
         picName: 'hero-walk',
         frame: 7
       }, {
@@ -72,15 +75,16 @@ class Player {
     }
   }
 
-  walk() {
+  move(setStatus) {
     const dx = parseInt(this.mousePoint.x - this.animate.x, 10)
     if (!(dx > -1.5 && dx < 1.5)) {
-      this.status = 'walk'
+      this.status = 'move'
       const angle = Math.atan2(0, dx)
       const xVelo = Math.cos(angle) * this.speed
       this.animate.x += xVelo
     } else {
-      this.status = 'interact'
+      this.status = 'idle'
+      setStatus('idle')
     }
   }
 
@@ -88,20 +92,17 @@ class Player {
     this.mousePoint = value
   }
 
-  checkStatus(status, activeObject) {
+  checkStatus(status, setStatus) {
     if (this.textureStatus !== this.status) {
-      // console.log(activeObject.Element.x)
-      // console.log(this.animate.x)
-      // console.log(this.status)
       this.animate.textures = this.animateSet[this.status]
       this.animate.gotoAndPlay(0)
       this.textureStatus = this.status
     }
     switch (status) {
-      case 'walk' :
-        this.walk()
+      case 'move' :
+        this.move(setStatus)
         break
-      case 'interact' :
+      case 'idle' :
         this.interact()
         break
       default :

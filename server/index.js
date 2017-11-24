@@ -37,6 +37,12 @@ app.get('/getGame/:id/effect/:name', (req, res) => {
     res.sendFile(path.resolve(`public/assets/effect/${req.params.name}.png`))
   } else res.send('Access denied')
 })
+app.get('/getWorld/:id/', (req, res) => {
+  if (parseInt(req.params.id, 10) === 1) {
+    console.log(req.params.name)
+    res.sendFile(path.resolve(`public/assets/effect/${req.params.name}.png`))
+  } else res.send('Access denied')
+})
 
 app.listen(PORT, () => {
   console.log('Example app listening on port 4000!')

@@ -1,15 +1,15 @@
 const world = (
   state = {
     status: 'idle',
-    activeObject: {},
-    action: 'idle',
+    activeObject: null,
+    action: null,
   }, action) => {
   let newState = state
   switch (action.type) {
     case 'WALK' :
       newState = {
         ...state,
-        status: 'walk'
+        status: 'move'
       }
       break
     case 'IDLE' :
@@ -24,6 +24,18 @@ const world = (
         status: 'interact'
       }
       break
+    case 'SET_PLAYER_STATUS' :
+      newState = {
+        ...state,
+        playerStatus: action.payload
+      }
+      break
+    case 'SET_STATUS' :
+      newState = {
+        ...state,
+        status: action.payload
+      }
+      break
     case 'SET_ACTION' :
       newState = {
         ...state,
@@ -34,6 +46,12 @@ const world = (
       newState = {
         ...state,
         activeObject: action.payload
+      }
+      break
+    case 'SET_PLAYER' :
+      newState = {
+        ...state,
+        player: action.payload
       }
       break
     default: break

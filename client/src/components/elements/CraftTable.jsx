@@ -1,27 +1,31 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
+import { ProgressBar } from 'react-bootstrap'
 
 const Button = styled.button`
-  background-color: #282828;
+  background-color: #fff;
+  border: 1px solid #bbb;
   padding: 10px;
   &:hover {
-    background-color:#787878;
+    background-color:#ddd;
   }
 `
 const CraftButton = styled.button`
-  background-color: ${props => (props.disable ? '#888' : '#457634')};
+  background-color: ${props => (props.disable ? '#ddd' : '#85b674')};
   padding: 10px;
+  color: white;
+  border-radius: 30px;
   &:hover {
-    background-color: ${props => (props.disable ? '#888' : '#659654')};
+    background-color: ${props => (props.disable ? '#ddd' : '#659654')};
     cursor: ${props => (props.disable ? 'no-drop' : 'pointer')};
   }
 `
 
 const Panel = styled.div`
   padding: 20px;
-  border: 1px solid #898989;
-  background-color: #444;
+  border: 1px solid #ddd;
+  background-color: #eee;
 `
 
 const Slot = ({ item, addToBag }) => {
@@ -76,9 +80,8 @@ class CraftTable extends Component {
         this.updateTimeCraftItem = setInterval(() => {
           craftingItem()
           this.forceUpdate()
-        }, 1000)
+        }, 500)
       }
-      // console.log(outputCraftItem)
     }
   }
 
@@ -91,7 +94,7 @@ class CraftTable extends Component {
     } = this.props
 
     const CraftItem = () => {
-      let diffTime = parseInt((outputCraftItem.endTime - outputCraftItem.nowTime) / 1000)
+      let diffTime = parseInt((outputCraftItem.endTime - outputCraftItem.nowTime) / 1000, 10)
       if (diffTime <= 0) {
         clearInterval(this.updateTimeCraftItem);
         outputCraftItem.status = 'success'
@@ -99,14 +102,14 @@ class CraftTable extends Component {
       }
       return (
         <div>
-          <h3> name: {outputCraftItem.name} </h3>
-          <h4> Output: {
-            diffTime === 0 ?
-              <Button onClick={() => this.outputToBag()}>
-                <img src={outputCraftItem.picture} width="32" alt="craftItem" />
-              </Button> : diffTime
-            }
-          </h4>
+          <h4> Output </h4> <br />
+          {
+          diffTime === 0 ?
+            <Button onClick={() => this.outputToBag()}>
+              <img src={outputCraftItem.picture} width="32" alt="craftItem" />
+            </Button> :
+            <ProgressBar striped bsStyle="success" now={Math.abs((outputCraftItem.buildTimeSec * 10) - (diffTime * 10))} />
+          }
         </div>
       )
     }
@@ -119,12 +122,13 @@ class CraftTable extends Component {
             return (<Slot key={index} item={item} addToBag={this.addToBag} />)
           })}
           <br /><br />
-          <CraftButton disable={craftItem.length === 0} onClick={() => this.CheckOutputItem()}>
-            Craft
-          </CraftButton>
-          <h2>Output</h2>
+          { craftItem.length !== 0 &&
+            <CraftButton onClick={() => this.CheckOutputItem()}>
+              Craft
+            </CraftButton>
+          }
           <div>
-            {outputCraftItem ? <CraftItem /> : 'nothing'}
+            {outputCraftItem && <CraftItem />}
           </div>
         </Panel>
       </div>
