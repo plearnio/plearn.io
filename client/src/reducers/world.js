@@ -1,16 +1,45 @@
-const worldReducer = (state = { status: 'idle', activeObject: {} }, action) => {
-  let newState
+const world = (
+  state = {
+    status: 'idle',
+    activeObject: null,
+    action: null,
+  }, action) => {
+  let newState = state
   switch (action.type) {
     case 'WALK' :
       newState = {
         ...state,
-        status: 'walk'
+        status: 'move'
       }
       break
     case 'IDLE' :
       newState = {
         ...state,
-        status: 'idle'
+        status: 'idle',
+      }
+      break
+    case 'INTERACT' :
+      newState = {
+        ...state,
+        status: 'interact'
+      }
+      break
+    case 'SET_PLAYER_STATUS' :
+      newState = {
+        ...state,
+        playerStatus: action.payload
+      }
+      break
+    case 'SET_STATUS' :
+      newState = {
+        ...state,
+        status: action.payload
+      }
+      break
+    case 'SET_ACTION' :
+      newState = {
+        ...state,
+        action: action.payload
       }
       break
     case 'SET_OBJECT' :
@@ -19,9 +48,15 @@ const worldReducer = (state = { status: 'idle', activeObject: {} }, action) => {
         activeObject: action.payload
       }
       break
+    case 'SET_PLAYER' :
+      newState = {
+        ...state,
+        player: action.payload
+      }
+      break
     default: break
   }
   return newState
 }
 
-export default worldReducer
+export default world
