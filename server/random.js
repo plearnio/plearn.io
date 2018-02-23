@@ -20,7 +20,7 @@ const objInMapArray = [
         "pos":1,
         "url":"grass1",
         "extra":0,
-        "scale":2,
+        "scale":1,
         "actions":[
           {
           "name":"move",
@@ -37,7 +37,7 @@ const objInMapArray = [
                 "pos":1,
                 "url":"grass1",
                 "extra":0,
-                "scale":2
+                "scale":1.5
               }
             ]
           }
@@ -55,13 +55,13 @@ const objInMapArray = [
         "name":"bush1",
         "sciName": "Atriplex canescens ",
         "description":"A plant with many small branches growing either directly from the ground or from a hard stem, giving the plant a rounded shape",
-        "rarity": 1,
+        "rarity": 2,
         "width":454,
-        "height":567,
+        "height":340,
         "pos":1,
         "url":"bush1",
         "extra":0,
-        "scale":0.14096916299,
+        "scale":0.25,
         "actions":[
           {
           "name":"move",
@@ -81,7 +81,7 @@ const objInMapArray = [
         "name":"Sacred fig twig",
         "sciName": "Ficus religiosa",
         "description":"A twig of Sacred fig",
-        "rarity": 1,
+        "rarity": 2,
         "width": 1024,
         "height":1528,
         "pos":1,
@@ -381,7 +381,7 @@ const objInMapArray = [
   },
   {
     name: 'tree',
-    rarity: 6,
+    rarity: 2,
     types:
     [
       {
@@ -394,8 +394,8 @@ const objInMapArray = [
         "height":120,
         "pos":1,
         "url":"tree1",
-        "extra":0,
-        "scale":1,
+        "extra":-10,
+        "scale":2,
         "actions":[
           {
           "name":"move",
@@ -409,12 +409,12 @@ const objInMapArray = [
         "sciName": "Malus pumila",
         "description":"The apple tree (Malus pumila, commonly and erroneously called Malus domestica) is a deciduous tree in the rose family best known for its sweet, pomaceous fruit, the apple. ",
         "rarity": 3,
-        "width":454,
-        "height":567,
+        "width":98,
+        "height":308,
         "pos":1,
         "url":"tree2",
         "extra":0,
-        "scale":0.14096916299,
+        "scale":0.2,
         "actions":[
           {
           "name":"move",
@@ -428,12 +428,12 @@ const objInMapArray = [
         "sciName": "Pinus",
         "description":"An evergreen tree (= one that never loses its leaves) that grows in cooler areas of the world:",
         "rarity": 6,
-        "width":454,
-        "height":567,
+        "width":364,
+        "height":389,
         "pos":1,
         "url":"tree3",
         "extra":0,
-        "scale":0.14096916299,
+        "scale":0.6,
         "actions":[
           {
           "name":"move",
@@ -582,7 +582,7 @@ const randomPositionObjOnMap = (randomObjTypeArray, numArea, numTilePerArea, max
       //  Shuffle empty space in 1 area
       objArea = _.shuffle(objArea)
     }
-
+    // consol.elog()
     let newObjArea = []
     //  Add position x to each object
     let indexTile = 0
@@ -604,8 +604,8 @@ const randomPositionObjOnMap = (randomObjTypeArray, numArea, numTilePerArea, max
 const generateObj = () => {
   //  initial number of area and tiles per one are
   const numArea = 1 // 10
-  const numTilePerArea = 6 // 24
-  const maxTilePerArea = 12
+  const numTilePerArea = 40 // 24
+  const maxTilePerArea = 48
   //  random obj
   const randomObjTypeArray = genRandomObj(numArea * numTilePerArea)
   //  random positio in map

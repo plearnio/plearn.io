@@ -3,7 +3,7 @@ const PIXI = require('pixi.js')
 class Effect {
   constructor(name, width, height, url, frame) {
     const effectSprite = PIXI.Sprite.fromImage(
-      `http://localhost:4000/getGame/1/effect/${url}/`,
+      `http://localhost:4000/game/getEffect/1/effect/${url}/`,
       true
     )
     const setTexture = []

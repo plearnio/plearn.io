@@ -6,15 +6,21 @@ import {
   Row,
   Col,
   Tabs,
-  Tab
+  Tab,
+  Modal,
+  Button
 } from 'react-bootstrap'
 import logo from './logo.svg'
+import island from './assets/island.png'
+import plearnLogo from './assets/logo.png'
 import Main from './components/playground/Main'
 
 import Bag from './components/elements/Bag'
+import Quest from './components/elements/Quest'
 import HandItem from './components/elements/HandItem'
 import CraftTable from './components/elements/CraftTable'
 import InteractedItem from './components/elements/InteractedObject'
+import timeImg from './assets/time.png'
 
 const NoPaddingCol = styled(Col)`
   padding: 0px;
@@ -24,7 +30,8 @@ const OverflowWithNoPaddingCol = styled(NoPaddingCol)`
 `
 
 const PlayGround = styled(Grid)`
-  margin-top: 50px;
+  padding: 20px;
+  background-color: white;
 `
 
 const Sidebar = styled(NoPaddingCol)`
@@ -56,6 +63,18 @@ const SubMenu = styled(Tab)`
   border: none;
 `
 
+const ImgTime = styled.img`
+float:left;
+margin-right: 20px;
+  width: 60px;
+  transform: rotate(${props => props.degree});
+`
+
+const ImgCenterRespon = styled.img`
+  max-width: 85%;
+  margin-top: 90px;
+`
+
 const ObjectPanel = styled.div`
   width: 100%;
   padding: 10px;
@@ -65,16 +84,56 @@ const ObjectPanel = styled.div`
   border: 1px solid #eee;
   text-align: left;
 `
+
+const StatusBar = styled.div`
+border: 1px solid #ddd;
+  /* display: none; Hidden by default */
+  padding:10px;
+  width: 100%; 
+  overflow: auto;
+  background-color: white;
+  color: #282828;
+  height: 130px;
+  overflow-y: hidden;
+`
+
+const ButtonItem = styled.button`
+  background-color: #fff;
+  border: 1px solid #bbb;
+  padding: 10px;
+  &:hover {
+    background-color:#ddd;
+  }
+`
 // interact item
 
 class App extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      key: 1
+      key: 1,
+      show: false,
+      date: new Date()
     }
     this.handleSelect = this.handleSelect.bind(this)
     // ({ status, activeObject, listItem }) => 
+  }
+
+  componentDidMount() {
+    this.timerID = setInterval(
+      () => this.tick(),
+      1000
+    );
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.timerID);
+  }
+
+  tick() {
+    this.setState({
+      date: new Date()
+    });
   }
 
   handleSelect(key) {
@@ -82,12 +141,35 @@ class App extends Component {
   }
 
   render() {
-    const { status, activeObject, listItem } = this.props
-    console.log(activeObject)
+    let close = () => this.setState({ show: false });
+    const { status, activeObject, listItem, setTime } = this.props
+    var d = new Date();
+    var n = d.getMinutes();
+    setTime(parseInt(n/5*2))
     return (
       <div className="App">
+        <Grid fluid>
+          <center><ImgCenterRespon src={plearnLogo} width="450" /></center>
+        </Grid>
+        <Grid fluid>
+        <center><ImgCenterRespon src={island} width="1280"/></center>
+        </Grid>
         <PlayGround>
           <Row className="show-grid">
+            <OverflowWithNoPaddingCol xs={12} md={6}>
+              <StatusBar>
+                <ImgTime  src={timeImg} degree={((n / 5 * 2 * 15) + 215) + 'deg'} alt="fireSpot" />
+                <h3>game time : {parseInt(n/5*2)}:00</h3><br/>
+                <h4>local time : {this.state.date.toLocaleTimeString()}.</h4>
+              </StatusBar>
+            </OverflowWithNoPaddingCol>
+            <OverflowWithNoPaddingCol xs={12} md={6}>
+              <StatusBar>
+                <h4>Health: 100</h4>
+                <h4>hunger: 100</h4>
+                <h4>Energy: 100</h4>
+              </StatusBar>
+            </OverflowWithNoPaddingCol>
             <OverflowWithNoPaddingCol xs={12} md={9}>
               <Main />
             </OverflowWithNoPaddingCol>
@@ -104,18 +186,6 @@ class App extends Component {
                             {
                             activeObject.name !== 'background' &&
                             <InteractedItem />
-                            // <ShowItem>
-                            //   <InteractItemPic>
-                            //     <ImgItem src={activeObject.picture} className="App-logo" alt="logo" />
-                            //   </InteractItemPic>
-                            //   <br />
-                            //   <Label> Name : <ObjectContent>{activeObject.name}</ObjectContent></Label>
-                            //   <Label> Science name : <ObjectContent>{activeObject.name}</ObjectContent></Label>
-                            //   <Label> Description : <ObjectContent>{activeObject.name}</ObjectContent></Label>
-                            //   <Actions>
-                            //     <Button bsSize="large" block>Large Button</Button>
-                            //   </Actions>
-                            // </ShowItem>
                             }
                           </div>
                         }
@@ -136,6 +206,13 @@ class App extends Component {
                     </ShowItem>
                   </AppHeader>
                 </SubMenu>
+                <SubMenu eventKey={3} title="Quest">
+                  <AppHeader>
+                    <ShowItem>
+                      <Quest/>
+                    </ShowItem>
+                  </AppHeader>
+                </SubMenu>
               </Menu>
             </Sidebar>
           </Row>
@@ -153,4 +230,12 @@ const mapStateToProps = (state) => {
   }
 }
 
-export default connect(mapStateToProps)(App)
+const mapDispatchToProps = (dispatch) => {
+  return {
+    setTime: (object) => {
+      dispatch({ type: 'SET_TIME', payload: object })
+    },
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(App)

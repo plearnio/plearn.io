@@ -1,10 +1,10 @@
 const PIXI = require('pixi.js')
 
 class BuildRealObject {
-  constructor(id, name, width, height, posX, posY, frame, url, extra, scale, actions) {
+  constructor(id, name, width, height, posX, posY, frame, url, extra, scale, actions, sciName, description) {
     
     const sprite = PIXI.Sprite.fromImage(
-      `http://localhost:4000/getGame/1/${url}/`,
+      `http://localhost:4000/game/getObject/1/${url}`,
       true
     )
     const TILE = 64
@@ -24,11 +24,18 @@ class BuildRealObject {
     this.Element.y = (posY * TILE) - ((height + extra) * scale)
     this.Element.gotoAndPlay(0)
     this.Element.zIndex = 0
+    this.url = url
+    this.scale = scale
+    this.extra = extra
     this.name = name
     this.id = id
+    this.width = width
+    this.height = height
+    this.sciName = sciName
+    this.description = description
     this.canGather = true
     this.actions = actions
-    this.picture = `http://localhost:4000/getGame/1/${url}/`
+    this.picture = `http://localhost:4000/game/getObject/1/${url}/`
   }
 }
 

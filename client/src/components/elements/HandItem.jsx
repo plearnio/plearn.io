@@ -3,10 +3,11 @@ import { connect } from 'react-redux'
 import styled from 'styled-components'
 
 const Button = styled.button`
-  background-color: #282828;
+  background-color: #fff;
+  border: 1px solid #bbb;
   padding: 10px;
   &:hover {
-    background-color:#787878;
+    background-color:#ddd;
   }
 `
 const Panel = styled.div`
@@ -17,27 +18,22 @@ const Panel = styled.div`
   background-color: #eee;
 `
 
-const Slot = ({ item, addItem }) => {
-  return (<Button onClick={() => addItem(item)}> <img src={item.picture} width="32" alt="item" /> </Button>)
+const Slot = ({ item, sendBack }) => {
+  return (<Button onClick={() => sendBack(item)}> <img src={item.picture} width="32" alt="item" /> </Button>)
 }
 
-const HandItem = ({ holdItem, addItem }) => {
+const HandItem = ({ holdItem, addHoldItem, addItem }) => {
 
-  // const addItem = (item) => {
-  //   // const indexItem = listItem.indexOf(item)
-  //   // console.log(indexItem)
-  //   // if (indexItem > -1) {
-  //   //   addCratfItem(listItem[indexItem])
-  //   //   listItem.splice(indexItem, 1);
-  //   // }
-  //   console.log(item)
-  // }
+  const sendBack = (item) => {
+    addItem(item)
+    addHoldItem(null)
+  }
 
   return (
     <div>
-      <h3> Hold Item </h3>
+      <h3> Holding Item </h3>
       <Panel>
-        {holdItem && <Slot item={holdItem} addItem={addItem} />}
+        {holdItem && <Slot item={holdItem} sendBack={sendBack} />}
       </Panel>
     </div>
   )
@@ -52,6 +48,9 @@ const mapDispatchToProps = (dispatch) => {
   return {
     addItem: (object) => {
       dispatch({ type: 'ADD_ITEM', payload: object })
+    },
+    addHoldItem: (object) => {
+      dispatch({ type: 'ADD_HOLD_ITEM', payload: object })
     }
   }
 }

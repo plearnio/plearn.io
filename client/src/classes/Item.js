@@ -4,7 +4,7 @@ class Item {
   constructor(id, name, width, height, frame, url, scale) {
     
     const sprite = PIXI.Sprite.fromImage(
-      `http://localhost:4000/getGame/1/${url}/`,
+      `http://localhost:4000/game/getItem/1/${url}/`,
       true
     )
     const TILE = 64
@@ -20,7 +20,7 @@ class Item {
     this.Element.animationSpeed = 0.001
     this.name = name
     this.id = id
-    this.picture = `http://localhost:4000/getGame/1/${url}/`
+    this.picture = `http://localhost:4000/game/getItem/1/${url}/`
   }
 }
 

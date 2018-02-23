@@ -1,4 +1,5 @@
 import Item from '../classes/Item'
+import BuildRealObject from '../classes/BuildRealObject'
 
 const item = (
   state = {
@@ -9,11 +10,39 @@ const item = (
     holdItem: null
   }, action) => {
   const craftItem = () => {
+    console.log(state.listItem)
+    state.listItem.sort(function(a, b){
+      if(a.name < b.name) return -1;
+      if(a.name > b.name) return 1;
+      return 0;
+    })
+    console.log(state.listItem)
+  
     if (state.craftItem.length > 0) {
+      const outputItem = new BuildRealObject(
+        0,
+        'teepee',
+        504,
+        482,
+        0, // posX
+        9, // posY
+        1,
+        'teepee',
+        0,
+        0.5,
+        [
+          {
+            name: 'sleep',
+            item: []
+          }
+        ],
+        '-',
+        'cone-shaped tent, traditionally made of animal skins upon wooden poles.'
+      )
       const d = new Date();
       const timeMillisec = d.getTime()
       const buildTimeSec = 10; // in second unit
-      const outputItem = new Item(0, 'grass', 0.5, 27, 1, 'grass1', 1.5)
+      // const outputItem = new Item(0, 'grass', 0.5, 27, 1, 'grass1', 1.5)
       outputItem.buildTimeSec = buildTimeSec
       outputItem.startTime = timeMillisec
       outputItem.nowTime = timeMillisec
@@ -55,7 +84,7 @@ const item = (
       }
       break
     case 'START_CRAFT_ITEM' :
-      outputItem = craftItem()
+      outputItem = craftItem(action.payload)
       if (outputItem) {
         newState = {
           ...state,

@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "axios": "^0.17.1",
     "bootstrap": "^3.3.7",
+    "pixi-display": "^1.1.1",
+    "pixi-layers": "^0.1.4",
     "pixi.js": "^4.5.5",
     "react": "^15.6.1",
     "react-bootstrap": "^0.31.2",

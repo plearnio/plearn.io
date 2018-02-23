@@ -1,8 +1,10 @@
 const world = (
   state = {
     status: 'idle',
+    time: new Date(),
     activeObject: null,
     action: null,
+    placeObject: null
   }, action) => {
   let newState = state
   switch (action.type) {
@@ -36,6 +38,12 @@ const world = (
         status: action.payload
       }
       break
+    case 'SET_TIME' :
+      newState = {
+        ...state,
+        time: action.payload
+      }
+      break
     case 'SET_ACTION' :
       newState = {
         ...state,
@@ -52,6 +60,12 @@ const world = (
       newState = {
         ...state,
         player: action.payload
+      }
+      break
+    case 'PLACE_OBJECT' :
+      newState = {
+        ...state,
+        placeObject: action.payload
       }
       break
     default: break

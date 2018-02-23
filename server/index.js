@@ -25,8 +25,8 @@ const game = require('./routes/game')
 
 app.use('*', cors({ origin: '*' }))
 
-app.use('/authen', cors({ origin: 'http://localhost:4000' }))
-app.use('/game', cors({ origin: 'http://localhost:4000' }))
+app.use('/authen', cors({ origin: 'http://localhost:3000' }))
+app.use('/game', cors({ origin: 'http://localhost:3000' }))
 
 app.use(morgan('dev'))
 app.use(cookieParser())

@@ -23,7 +23,7 @@ class Player {
     this.animateSet = {}
     for (let i = 0; i < allStatus.length; i += 1) {
       const sprite = PIXI.Sprite.fromImage(
-        `http://localhost:4000/getGame/1/${allStatus[i].picName}/`,
+        `http://localhost:4000/game/getPlayer/1/${allStatus[i].picName}/`,
         true
       )
       const setTexture = []

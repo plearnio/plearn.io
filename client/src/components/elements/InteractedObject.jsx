@@ -54,7 +54,7 @@ class InteractedObject extends Component {
     this.forceUpdate()
   }
   render() {
-  const { activeObject, action } = this.props
+  const { activeObject, action, holdItem } = this.props
   console.log(activeObject)
     return (
       <div>
@@ -66,15 +66,19 @@ class InteractedObject extends Component {
           </InteractItemPic>
           <br />
           <Label> Name : <ObjectContent>{activeObject.name}</ObjectContent></Label>
-          <Label> Science name : <ObjectContent>{activeObject.name}</ObjectContent></Label>
-          <Label> Description : <ObjectContent>{activeObject.name}</ObjectContent></Label>
+          <Label> Science name : <ObjectContent>{activeObject.sciName}</ObjectContent></Label>
+          <Label> Description : <ObjectContent>{activeObject.description}</ObjectContent></Label>
           <Actions>
             {
-              activeObject.actions.map((act) => {
+              activeObject.actions.map((act, index) => {
                 if (act.name !== 'move' && action !== act.name) {
-                  return (<Button bsSize="large" block onClick={() => this.callSetAction(act.name)}>{act.name}</Button>)
+                  return (<Button key={index} bsSize="large" block onClick={() => this.callSetAction(act.name)}>{act.name}</Button>)
                 }
               })
+            }
+            {
+              holdItem && 
+              <Button bsSize="large" block onClick={() => this.callSetAction('gather')}>Hit !!!!</Button>
             }
           </Actions>
         </ShowItem>
@@ -88,7 +92,8 @@ class InteractedObject extends Component {
 const mapStateToProps = (state) => {
   return {
     activeObject: state.world.activeObject,
-    action: state.world.action
+    action: state.world.action,
+    holdItem: state.item.holdItem,
   }
 }
 const mapDispatchToProps = (dispatch) => {
