@@ -12,7 +12,7 @@ import showEffect from '../../game_methods/showEffect'
 const PIXI = require('pixi.js')
 const display = require('pixi-layers')
 
-console.log(PIXI.display)
+// console.log(PIXI.display)
 PIXI.utils.sayHello('start pixi')
 
 const app = new PIXI.Application(64 * 48, 640)

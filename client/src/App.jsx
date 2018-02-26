@@ -13,14 +13,14 @@ import {
 import logo from './logo.svg'
 import island from './assets/island.png'
 import plearnLogo from './assets/logo.png'
-import Main from './components/playground/Main'
+import timeImg from './assets/time.png'
 
+import Main from './components/playground/Main'
 import Bag from './components/elements/Bag'
 import Quest from './components/elements/Quest'
 import HandItem from './components/elements/HandItem'
 import CraftTable from './components/elements/CraftTable'
 import InteractedItem from './components/elements/InteractedObject'
-import timeImg from './assets/time.png'
 
 const NoPaddingCol = styled(Col)`
   padding: 0px;
