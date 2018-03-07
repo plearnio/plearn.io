@@ -14,7 +14,6 @@
     "react-progress-button": "^5.1.0",
     "react-redux": "^5.0.6",
     "redux": "^3.7.2",
-    "socket.io-client": "^2.0.4",
     "styled-components": "^2.1.2"
   },
   "devDependencies": {

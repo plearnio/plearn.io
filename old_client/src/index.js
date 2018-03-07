@@ -6,8 +6,26 @@ import { Provider } from 'react-redux'
 import App from './App'
 import registerServiceWorker from './registerServiceWorker'
 
+import allReducer from './reducers/index'
+
+const store = createStore(allReducer, {
+  status: 'idle',
+  activeObject: {
+    name: 'Nothing'
+  }
+})
+
+// store.subscribe(() => {
+//   console.log(store.getState())
+// })
+
+store.dispatch({
+  type: 'IDLE'
+})
 
 ReactDOM.render(
-    <App />,
+  <Provider store={store}>
+    <App />
+  </Provider>,
   document.getElementById('root'))
 registerServiceWorker()

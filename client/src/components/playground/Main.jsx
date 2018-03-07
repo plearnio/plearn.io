@@ -1,332 +1,391 @@
 import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import axios from 'axios'
-import Player from '../../classes/Player'
-import Background from '../../classes/Background'
-import BuildRealObject from '../../classes/BuildRealObject'
+import openSocket from 'socket.io-client'
 
-import checkInteract from '../../game_methods/checkInteract'
-import showEffect from '../../game_methods/showEffect'
-
+// assets
+import imageStatusBar from '../../assets/status-bar-2.png'
+import buttonAction from '../../assets/button-interact.png'
 
 const PIXI = require('pixi.js')
 const display = require('pixi-layers')
 
-// console.log(PIXI.display)
+const socket = openSocket('http://localhost:4444')
+
 PIXI.utils.sayHello('start pixi')
 
-const app = new PIXI.Application(64 * 48, 640)
-app.stage = new PIXI.display.Stage();
-const objectContainer = new PIXI.Container()
+// GLOBAL VARS
+const app = new PIXI.Application(window.innerWidth, window.innerHeight)
+app.renderer.view.style.position = 'absolute'
+app.renderer.view.style.display = 'block'
+app.renderer.autoResize = true
+app.renderer.backgroundColor = 0xffffff
+const cover = new PIXI.Sprite(PIXI.Texture.WHITE);
+const background = new PIXI.Sprite(PIXI.Texture.WHITE);
+const blurFilter = new PIXI.filters.BlurFilter()
+const graphicContainer = new PIXI.Container()
 const backgroundContainer = new PIXI.Container()
-const landContainer = new PIXI.Container()
-const effectContainer = new PIXI.Container()
-const notPlayerContainer = new PIXI.Container()
-const playerContainer = new PIXI.Container()
-const lighting = new PIXI.display.Layer();
-let objIdNow = 0
+const otherPlayerContainer = new PIXI.Container()
+const mainPlayerContainer = new PIXI.Container()
+const frontContainer = new PIXI.Container()
+
+const playerData = {
+  thisPlayer: {},
+  allPlayer: {}
+}
+
+const allObject = []
+
+let layoutContainer
+
+class ScalingWindow {
+  constructor() {
+    this.tileSize = 90
+    this.factor = 1
+    this.windowWidth = window.innerWidth
+    this.windowHeight = window.innerHeight
+    this.marginLeft = 0
+    this.marginTop = 0
+  }
+  scalingApp(element) {
+    this.windowWidth = window.innerWidth
+    this.windowHeight = window.innerHeight
+
+    if (this.windowWidth / this.windowHeight > 2) {
+      this.marginLeft = (this.windowWidth - (2 * this.windowHeight)) / 2
+      document.getElementById(element).style.marginLeft = `${this.marginLeft}px`
+      document.getElementById(element).style.marginTop = '0px'
+      this.windowWidth = this.windowHeight * 2
+      this.factor = this.windowHeight / 1080
+      this.tileSize = (1080 / 12) * (this.windowHeight / 1080)
+    } else if (this.windowHeight > this.windowWidth) {
+      this.marginTop = (this.windowHeight - this.windowWidth) / 2
+      document.getElementById(element).style.marginTop = `${this.marginTop}px`
+      document.getElementById(element).style.marginLeft = '0px'
+      this.windowHeight = this.windowWidth
+      this.factor = this.windowWidth / 1080
+      this.tileSize = (1080 / 12) * (this.windowWidth / 1080)
+    } else {
+      this.marginLeft = 0
+      this.marginTop = 0
+      this.factor = this.windowHeight / 1080
+      this.tileSize = (1080 / 12) * (this.windowHeight / 1080)
+      document.getElementById(element).style.marginTop = '0px'
+      document.getElementById(element).style.marginLeft = '0px'
+    }
+  }
+}
+
+const setScaling = ({ element, x, y, factor, scale }) => {
+  element.x = x * factor
+  element.y = y * factor
+  element.scale.set(scale.x * factor, scale.y * factor)
+}
+
+class GameElementData {
+  constructor() {
+    this.statusBar = PIXI.Sprite.fromImage(imageStatusBar)
+    this.timeText = new PIXI.Text('00:00')
+    this.initialData()
+  }
+  initialData() {
+    this.timeText.x = 30
+    this.timeText.y = 200
+    frontContainer.addChild(this.timeText)
+    frontContainer.addChild(this.statusBar)
+  }
+  updateScaling(scaling) {
+    setScaling({
+      element: this.timeText, x: 30, y: 200, scale: { x: 1, y: 1 }, factor: scaling.factor
+    })
+    setScaling({
+      element: this.statusBar, x: 0, y: 0, scale: { x: 1.5, y: 1.5 }, factor: scaling.factor
+    })
+  }
+  updateElement(worldData) {
+    const gameMin = (`0${worldData.worldTime.min}`).slice(-2)
+    this.timeText.text = `time ${worldData.worldTime.hour}:${gameMin}`
+  }
+
+}
+
+const Scaling = new ScalingWindow()
+const GameElement = new GameElementData()
+
+class ListDataObject {
+  constructor() {
+    this.objectData = {}
+  }
+  listAction() {
+    console.log(this.objectData)
+    app.stage.removeChild(layoutContainer)
+    layoutContainer = new PIXI.Container()
+    if (!(Object.keys(this.objectData).length === 0)) {
+      app.stage.addChild(layoutContainer)
+      allObject[this.objectData.id].alpha = 0.5
+      this.objectData.actions.forEach((element, index) => {
+        const action = PIXI.Sprite.fromImage(buttonAction)
+        layoutContainer.addChild(action)
+      })
+    } else {
+      console.log('no object')
+    }
+  }
+  updateScaling() {
+    layoutContainer.children.forEach((childElement, index) => {
+      childElement.height = 60 * Scaling.factor
+      childElement.width = 300 * Scaling.factor
+      childElement.x = (allObject[this.objectData.id].x + graphicContainer.x)
+      childElement.y = (allObject[this.objectData.id].y - ((70 * (index + 1)) * Scaling.factor))
+    })
+  }
+}
+
+const PointerObject = new ListDataObject()
+
+// INITIAL
+const initialData = () => {
+  cover.width = Scaling.windowWidth
+  cover.height = Scaling.windowHeight
+  cover.tint = 0xffffff
+  cover.visible = false
+  cover.alpha = 0.8
+
+  background.width = Scaling.windowWidth
+  background.height = Scaling.windowHeight
+  background.tint = 0xeffadf
+  background.interactive = true
+
+  blurFilter.blur = 20
+  app.renderer.view.style.position = 'absolute'
+  app.renderer.view.style.display = 'block'
+  app.renderer.autoResize = true
+  app.renderer.backgroundColor = 0xffffff
+  PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST
+  background.on('pointerup', () => {
+    if (Object.keys(PointerObject.objectData).length !== 0) allObject[PointerObject.objectData.id].alpha = 1
+    PointerObject.objectData = {}
+    app.stage.removeChild(layoutContainer)
+  })
+  backgroundContainer.addChild(background)
+  graphicContainer.addChild(backgroundContainer)
+  graphicContainer.addChild(otherPlayerContainer)
+  app.stage.addChild(graphicContainer)
+  app.stage.addChild(mainPlayerContainer)
+  app.stage.addChild(frontContainer)
+  app.stage.addChild(cover)
+  app.stage.filters = []
+
+  if (Scaling.windowWidth / Scaling.windowHeight > 2) {
+    Scaling.marginLeft = (Scaling.windowWidth - (2 * Scaling.windowHeight)) / 2
+    Scaling.windowWidth = Scaling.windowHeight * 2
+    Scaling.factor = Scaling.windowHeight / 1080
+    Scaling.tileSize = (1080 / 12) * (Scaling.windowHeight / 1080)
+  } else if (Scaling.windowHeight > Scaling.windowWidth) {
+    Scaling.marginTop = (Scaling.windowHeight - Scaling.windowWidth) / 2
+    Scaling.windowHeight = Scaling.windowWidth
+    Scaling.factor = Scaling.windowWidth / 1080
+    Scaling.tileSize = (1080 / 12) * (Scaling.windowWidth / 1080)
+  } else {
+    Scaling.factor = Scaling.windowHeight / 1080
+    Scaling.tileSize = (1080 / 12) * (Scaling.windowHeight / 1080)
+  }
+}
+
+const getMousePosition = () => app.renderer.plugins.interaction.mouse.global
+const updateNewPlayer = (playerList) => {
+  Object.keys(playerList)
+  .forEach((index) => {
+    if (!playerData.allPlayer[index]) {
+      playerData.allPlayer[index] = playerList[index]
+      playerData.allPlayer[index].sprite = PIXI.Sprite.fromImage('http://localhost:4000/game/getObject/1/tree1')
+      playerData.allPlayer[index].sprite.height = Scaling.tileSize * 1
+      playerData.allPlayer[index].sprite.width = Scaling.tileSize * 1
+      playerData.allPlayer[index].sprite.y = Scaling.tileSize * (11 - 1)
+      playerData.allPlayer[index].sprite.anchor.x = 0.5
+      if (parseInt(index, 10) === playerData.thisPlayer.id) {
+        playerData.allPlayer[index].sprite.x = (Scaling.windowWidth / 2)
+        mainPlayerContainer.addChild(playerData.allPlayer[index].sprite)
+      } else {
+        playerData.allPlayer[index].sprite.x = playerList[index].x * Scaling.factor
+        otherPlayerContainer.addChild(playerData.allPlayer[index].sprite)
+      }
+    }
+  })
+}
+
+const updateDeletePlayer = (playerList) => {
+  Object.keys(playerData.allPlayer)
+  .forEach((index) => {
+    if (!playerList[index]) {
+      otherPlayerContainer.removeChild(playerData.allPlayer[index].sprite)
+      delete playerData.allPlayer[index]
+    }
+  })
+}
+
+const listenEventFromUser = () => {
+  let resizing
+  const doneResizing = () => {
+    cover.visible = false
+    app.stage.filters = []
+  }
+  window.onresize = () => {
+    clearTimeout(resizing)
+    cover.visible = true
+    app.stage.filters = [blurFilter]
+    resizing = setTimeout(doneResizing, 500)
+  }
+  document.onkeydown = (event) => {
+    if (event.keyCode === 68) {
+      socket.emit('keyPress', { 
+        inputId: 'right', state: true
+      })
+    }
+    else if (event.keyCode === 83) socket.emit('keyPress', { inputId: 'down', state: true })
+    else if (event.keyCode === 65) socket.emit('keyPress', { inputId: 'left', state: true })
+    else if (event.keyCode === 87) socket.emit('keyPress', { inputId: 'up', state: true })
+  }
+
+  document.onkeyup = (event) => {
+    if (event.keyCode === 68) socket.emit('keyPress', { inputId: 'right', state: false })
+    else if (event.keyCode === 83) socket.emit('keyPress', { inputId: 'down', state: false })
+    else if (event.keyCode === 65) socket.emit('keyPress', { inputId: 'left', state: false })
+    else if (event.keyCode === 87) socket.emit('keyPress', { inputId: 'up', state: false })
+  }
+}
+
+const socketEvent = () => {
+  socket.on('getPlayerData', (data) => {
+    if (Object.keys(playerData.thisPlayer).length !== 0) {
+      mainPlayerContainer.removeChild(playerData.allPlayer[playerData.thisPlayer.id].sprite)
+    }
+    playerData.thisPlayer = data.thisPlayer
+  })
+
+  socket.on('getPointingObjectData', (data) => {
+    if (allObject[PointerObject.objectData.id]) allObject[PointerObject.objectData.id].alpha = 1
+    PointerObject.objectData = data.objectData
+    PointerObject.listAction()
+  })
+
+  socket.on('updateNewPlayer', (data) => {
+    mainPlayerContainer.removeChild(playerData.thisPlayer.sprite)
+    console.log(`welcome player ${data.newPlayerId} !`)
+    updateDeletePlayer(data.listPlayer)
+    updateNewPlayer(data.listPlayer)
+  })
+
+  socket.on('updateDeletePlayer', (data) => {
+    // playerData.allPlayer = data
+    console.log(`delete player ${data.deletedPlayerId} !`)
+    updateDeletePlayer(data.listPlayer)
+  })
+
+  socket.on('updateGameData', (data) => {
+    updateNewPlayer(data.playerListNow)
+    Object.keys(data.playerListNow)
+    .forEach((index) => {
+      playerData.allPlayer[index].sprite.height = Scaling.tileSize * 2
+      playerData.allPlayer[index].sprite.width = Scaling.tileSize * 1
+      playerData.allPlayer[index].sprite.y = Scaling.tileSize * (11 - 2)
+      if (parseInt(index, 10) === playerData.thisPlayer.id) {
+        playerData.thisPlayer = data.playerListNow[index]
+        playerData.allPlayer[index].sprite.x = ((window.innerWidth) / 2) - Scaling.marginLeft
+        graphicContainer.x =
+        -(data.playerListNow[index].x * Scaling.factor)
+        + playerData.allPlayer[index].sprite.x
+      } else playerData.allPlayer[index].sprite.x = data.playerListNow[index].x * Scaling.factor
+    })
+    updateDeletePlayer(data.playerListNow)
+    GameElement.updateElement(data.worldData)
+  })
+}
+
+initialData()
+listenEventFromUser()
+socketEvent()
 
 class Main extends Component {
 
   constructor(props) {
     super(props)
     this.state = {
-      loading: true
+      loading: true,
+      timestamp: 'no timestamp yet'
     }
+    socket.emit('getplayerData.AllPlayer', `My name is ${Math.random()}`)
   }
 
   componentDidMount() {
-    const dataWorld = axios.get('http://localhost:4000/generateWorld/1')
-    if (app.renderer instanceof PIXI.CanvasRenderer) {
-      console.log('canvas')
-    } else {
-      console.log('webGL')
-    }
-    notPlayerContainer.addChild(backgroundContainer);
-    notPlayerContainer.addChild(objectContainer);
-    notPlayerContainer.addChild(effectContainer);
-    notPlayerContainer.addChild(landContainer);
-    app.stage.addChild(notPlayerContainer)
-    app.stage.addChild(playerContainer);
-    console.log(lighting)
-    lighting.on('display', function (element) {
-        element.blendMode = PIXI.BLEND_MODES.ADD
-    });
-    lighting.filters = [new PIXI.filters.VoidFilter()];
-    lighting.filters[0].blendMode = PIXI.BLEND_MODES.MULTIPLY;
-
-    lighting.filterArea = app.screen;
-    // lighting.filterArea = new PIXI.Rectangle(100, 100, 600, 400); //<-- try uncomment it
-
-    app.stage.addChild(lighting);
-
-    var ambient = new PIXI.Graphics();
-    // ambient.beginFill(0xffffff, 1.0);
-    // ambient.drawRect(0, 0, 64 * 24, 640);
-    // ambient.endFill();
-    lighting.addChild(ambient); //<-- try comment it
-    var d = new Date();
-    var n = d.getMinutes();
-    var timeGame = n / 5 * 2
-    if(timeGame >= 6 && timeGame <= 17) ambient.beginFill(0xffffff, 1);
-    else if(timeGame >= 4 && timeGame < 6) ambient.beginFill(0x884444, 1);
-    else if(timeGame > 17 && timeGame <= 19) ambient.beginFill(0x444488, 1);
-    else ambient.beginFill(0x101010, 1);
-    ambient.drawRect(0, 0, 64 * 48, 640);
-    ambient.endFill();
-    const {
-      status,
-      activeObject,
-      showObject,
-      onWalk,
-      onIdle,
-      onInteract,
-      addItem,
-      setAction,
-    } = this.props
-    const getMousePosition = () => app.renderer.plugins.interaction.mouse.global
-    const background = new Background('background', 'forest', app.renderer.height, app.renderer.width, 7)
-    // effect have unit in pixel in term of width and height
-    let mousePosition = getMousePosition()
-    let i = 0
-    for (i = 0; i < background.Element.length; i += 1) {
-      backgroundContainer.addChild(background.Element[i])
-    }
-    document.getElementById('test').appendChild(app.view)
-
-    PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST
-
-    let r = 0
-    let g = 0
-    let b = 0
-
-    const changeBg = (lastR, lastG, lastB, speedColor) => {
-      if(r > lastR) {
-        r -= speedColor
-        if(r <= lastR) r = lastR
-      } else if (r < lastR){
-        r += speedColor
-        if(r >= lastR) r = lastR
-      }
-  
-      if(g > lastG) {
-        g -= speedColor
-        if(g <= lastG) g = lastG
-      } else if (g < lastG){
-        g += speedColor
-        if(g >= lastG) g = lastG
-      }
-  
-      if(b > lastB) {
-        b -= speedColor
-        if(b <= lastB) b = lastB
-      } else if (b < lastB){
-        b += speedColor
-        if(b >= lastB) b = lastB
-      }
-        // if ((r << 16) + (g << 8) + (b) > 0xFFFFFF) app.renderer.backgroundColor = 0xFFFFFF
-        // else app.renderer.backgroundColor = (r << 16) + (g << 8) + (b)
-      // app.renderer.backgroundColor = (r << 16) + (g << 8) + (b)
-      ambient.beginFill((r << 16) + (g << 8) + (b), 1.0);
-      ambient.drawRect(0, 0, 64 * 24, 640);
-      ambient.endFill();
-      // app.renderer.backgroundColor = (r << 16) + (g << 8) + (b)
-     
-    }
+    // document.body.appendChild(app.renderer.view)
+    document.getElementById('mainCanvas').appendChild(app.renderer.view)
 
     const assetsLoaded = () => {
-      const BASE = 9
-      const LAND = 10
-      const TILE = 64
-      const MAX_TILE = 48
-
-      const AllObjects = []
-      const heroWalk = new Player('hero-walk', { x: 1 * TILE, y: BASE * TILE }, 2)
-      var lightbulb = new PIXI.Graphics();
-      var rr = 0xff;
-      var rg = 0xff;
-      var rb = 0xff;
-      lightbulb.beginFill(0xffffff, 1.0);
-      if(timeGame < 4 || timeGame >= 20) lightbulb.drawCircle(0, 0, 25);
-      else lightbulb.drawCircle(0, 0, 50);
-      lightbulb.endFill();
-      lightbulb.parentLayer = lighting;
-      var blurFilter1 = new PIXI.filters.BlurFilter();
-      blurFilter1.blur = 50
-      lightbulb.filters = [blurFilter1];
-      heroWalk.animate.addChild(lightbulb);
-      // create land
-      const Land = []
-
-      for (i = 0; i < MAX_TILE; i += 1) {
-        Land.push(new BuildRealObject(objIdNow, 'land', TILE, TILE, i, LAND, 1, 'distland', 0, 1, [{
-          name: 'move',
-          item: []
-        }]))
-        landContainer.addChild(Land[i].Element)
-        checkInteract({
-          stage: landContainer,
-          object: Land[i],
-          heroWalk,
-          setStore: onWalk,
-          setAction,
-          showObject
+      for (let i = 0; i < 12; i += 1) {
+        allObject.push(PIXI.Sprite.fromImage('http://localhost:4000/game/getObject/1/grass1'))
+        allObject[i].interactive = true
+        allObject[i].buttonMode = true
+        graphicContainer.addChild(allObject[i])
+        allObject[i].on('pointerup', (event) => {
+          socket.emit('pointerUp', { inputId: 'pointObject', objectId: i })
+        })
+        allObject[i].on('pointerover', () => {
+          allObject[i].alpha = 0.5
+        })
+        allObject[i].on('pointerout', () => {
+          if ((Object.keys(PointerObject.objectData).length === 0) || (PointerObject.objectData.id !== i)) allObject[i].alpha = 1
+        })
+      }
+      const allLand = []
+      for (let i = 0; i < 48; i += 1) {
+        allLand.push(PIXI.Sprite.fromImage('http://localhost:4000/game/getObject/1/distland'))
+        allLand[i].interactive = true
+        allLand[i].buttonMode = true
+        graphicContainer.addChild(allLand[i])
+        allLand[i].on('pointerup', () => {
+          console.log(allLand[i].x)
         })
       }
 
-      // width in TILE, height in pixels, posx , pos Y, frame image, name url,
-      dataWorld.then((response) => {
-        this.setState({
-          loading: false
-        })
-        const allObj = response.data[0]
-        for (i = 0; i < allObj.length; i += 1) {
-          const newObj = new BuildRealObject(
-            allObj[i].id,
-            allObj[i].name,
-            allObj[i].width,
-            allObj[i].height,
-            allObj[i].pos, // posX
-            LAND - 1, // posY
-            1,
-            allObj[i].url,
-            allObj[i].extra,
-            allObj[i].scale,
-            allObj[i].actions,
-            allObj[i].sciName,
-            allObj[i].description
-          )
-          objectContainer.addChild(newObj.Element)
-          checkInteract({
-            stage: objectContainer,
-            object: newObj,
-            heroWalk,
-            setStore: onWalk,
-            setAction,
-            showObject
-          })
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-      })
+      // loop
+      const mousePosition = getMousePosition()
+      app.ticker.add((alpha) => {
+        const start = performance.now()
+        Scaling.scalingApp('mainCanvas')
 
-      checkInteract({
-        stage: backgroundContainer,
-        object: background,
-        heroWalk,
-        setStore: onIdle,
-        setAction,
-        showObject,
-        bg: true
-      })
-      playerContainer.addChild(heroWalk.animate)
-      app.ticker.add(() => {
-        const { status, activeObject, setStatus, action, placeObject, placeObjectToG, time } = this.props
-        mousePosition = getMousePosition()
-        mousePosition.x = parseInt(mousePosition.x, 10)
-        mousePosition.y = parseInt(mousePosition.y, 10)
-        heroWalk.checkSide(mousePosition)
-        const playerStatus = heroWalk.checkStatus(status, setStatus)
-        if (action === 'gather') {
-          if (Math.abs(heroWalk.animate.x - activeObject.Element.x) <= TILE) {
-            showEffect({
-              stage: effectContainer,
-              object: activeObject,
-              setAction,
-              addItem,
-              showObject
-            })
-            setAction(null)
-            onIdle()
-            heroWalk.status = 'idle'
-          }
+        for (let i = 0; i < 12; i += 1) {
+          allObject[i].y = Scaling.tileSize * i
+          allObject[i].height = Scaling.tileSize
+          allObject[i].width = Scaling.tileSize
         }
-        if (placeObject) {
-          const newObj = new BuildRealObject(
-            placeObject.id,
-            placeObject.name,
-            placeObject.width,
-            placeObject.height,
-            parseInt(heroWalk.animate.x / TILE, 10), // posX
-            LAND - 1, // posY
-            1,
-            placeObject.url,
-            placeObject.extra,
-            placeObject.scale,
-            placeObject.actions,
-            placeObject.sciName,
-            placeObject.description
-          )
-          objectContainer.addChild(newObj.Element)
-          checkInteract({
-            stage: objectContainer,
-            object: newObj,
-            heroWalk,
-            setStore: onWalk,
-            setAction,
-            showObject
-          })
-          placeObjectToG(null)
+        for (let i = 0; i < 48; i += 1) {
+          allLand[i].y = Scaling.tileSize * 11
+          allLand[i].x = Scaling.tileSize * i
+          allLand[i].height = Scaling.tileSize
+          allLand[i].width = Scaling.tileSize
         }
 
-        background.parallax(heroWalk.animate.x)
+        app.renderer.resize(Scaling.windowWidth, Scaling.windowHeight);
+        GameElement.updateScaling(Scaling)
+        if ((Object.keys(PointerObject.objectData).length !== 0)) PointerObject.updateScaling(Scaling)
+        background.width = Scaling.windowWidth
+        background.height = Scaling.windowHeight
+        cover.width = Scaling.windowWidth
+        cover.height = Scaling.windowHeight
+        const end = performance.now()
+        // console.log(`time calculate = ${end - start}` millisecond)
       })
-
-      // app.start()
     }
 
-    // app.stop()
-    PIXI.loader
-    .add('hero', 'http://localhost:4000/getGame/1/hero-idle/')
-    .load(assetsLoaded)
+    assetsLoaded()
   }
 
   render() {
     return (
       <div>
-        { this.state.loading && 'loading' } <div id="test" />
+        <div id="mainCanvas" />
       </div>
     )
   }
 }
 
-const mapStateToProps = (state) => {
-  return {
-    time: state.world.time,
-    status: state.world.status,
-    activeObject: state.world.activeObject,
-    action: state.world.action,
-    placeObject: state.world.placeObject
-  }
-}
-const mapDispatchToProps = (dispatch) => {
-  return {
-    onWalk: () => {
-      dispatch({ type: 'WALK' })
-    },
-    onIdle: () => {
-      dispatch({ type: 'IDLE' })
-    },
-    onInteract: () => {
-      dispatch({ type: 'INTERACT' })
-    },
-    setAction: (action) => {
-      dispatch({ type: 'SET_ACTION', payload: action })
-    },
-    setStatus: (status) => {
-      dispatch({ type: 'SET_STATUS', payload: status })
-    },
-    showObject: (object) => {
-      dispatch({ type: 'SET_OBJECT', payload: object })
-    },
-    addItem: (object) => {
-      dispatch({ type: 'ADD_ITEM', payload: object })
-    },
-    placeObjectToG: (object) => {
-      dispatch({ type: 'PLACE_OBJECT', payload: object })
-    }
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(Main)
+export default Main
