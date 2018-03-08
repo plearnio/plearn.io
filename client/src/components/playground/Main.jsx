@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import openSocket from 'socket.io-client'
 
+// classes 
+import ScalingWindow from '../../classes/ScalingWindow'
 // assets
 import imageStatusBar from '../../assets/status-bar-2.png'
 import buttonAction from '../../assets/button-interact.png'
@@ -35,44 +37,6 @@ const playerData = {
 const allObject = []
 
 let layoutContainer
-
-class ScalingWindow {
-  constructor() {
-    this.tileSize = 90
-    this.factor = 1
-    this.windowWidth = window.innerWidth
-    this.windowHeight = window.innerHeight
-    this.marginLeft = 0
-    this.marginTop = 0
-  }
-  scalingApp(element) {
-    this.windowWidth = window.innerWidth
-    this.windowHeight = window.innerHeight
-
-    if (this.windowWidth / this.windowHeight > 2) {
-      this.marginLeft = (this.windowWidth - (2 * this.windowHeight)) / 2
-      document.getElementById(element).style.marginLeft = `${this.marginLeft}px`
-      document.getElementById(element).style.marginTop = '0px'
-      this.windowWidth = this.windowHeight * 2
-      this.factor = this.windowHeight / 1080
-      this.tileSize = (1080 / 12) * (this.windowHeight / 1080)
-    } else if (this.windowHeight > this.windowWidth) {
-      this.marginTop = (this.windowHeight - this.windowWidth) / 2
-      document.getElementById(element).style.marginTop = `${this.marginTop}px`
-      document.getElementById(element).style.marginLeft = '0px'
-      this.windowHeight = this.windowWidth
-      this.factor = this.windowWidth / 1080
-      this.tileSize = (1080 / 12) * (this.windowWidth / 1080)
-    } else {
-      this.marginLeft = 0
-      this.marginTop = 0
-      this.factor = this.windowHeight / 1080
-      this.tileSize = (1080 / 12) * (this.windowHeight / 1080)
-      document.getElementById(element).style.marginTop = '0px'
-      document.getElementById(element).style.marginLeft = '0px'
-    }
-  }
-}
 
 const setScaling = ({ element, x, y, factor, scale }) => {
   element.x = x * factor
@@ -123,6 +87,12 @@ class ListDataObject {
       allObject[this.objectData.id].alpha = 0.5
       this.objectData.actions.forEach((element, index) => {
         const action = PIXI.Sprite.fromImage(buttonAction)
+        action.buttonMode = true
+        action.interactive = true
+        action.on('pointerup', () => {
+          socket.emit('pointerUp', { inputId: 'clickAction', element })
+          console.log('click' + element)
+        })
         layoutContainer.addChild(action)
       })
     } else {
@@ -235,11 +205,7 @@ const listenEventFromUser = () => {
     resizing = setTimeout(doneResizing, 500)
   }
   document.onkeydown = (event) => {
-    if (event.keyCode === 68) {
-      socket.emit('keyPress', { 
-        inputId: 'right', state: true
-      })
-    }
+    if (event.keyCode === 68) socket.emit('keyPress', { inputId: 'right', state: true })
     else if (event.keyCode === 83) socket.emit('keyPress', { inputId: 'down', state: true })
     else if (event.keyCode === 65) socket.emit('keyPress', { inputId: 'left', state: true })
     else if (event.keyCode === 87) socket.emit('keyPress', { inputId: 'up', state: true })
@@ -262,6 +228,7 @@ const socketEvent = () => {
   })
 
   socket.on('getPointingObjectData', (data) => {
+    // clear old pointing item
     if (allObject[PointerObject.objectData.id]) allObject[PointerObject.objectData.id].alpha = 1
     PointerObject.objectData = data.objectData
     PointerObject.listAction()
@@ -290,9 +257,12 @@ const socketEvent = () => {
       if (parseInt(index, 10) === playerData.thisPlayer.id) {
         playerData.thisPlayer = data.playerListNow[index]
         playerData.allPlayer[index].sprite.x = ((window.innerWidth) / 2) - Scaling.marginLeft
-        graphicContainer.x =
-        -(data.playerListNow[index].x * Scaling.factor)
-        + playerData.allPlayer[index].sprite.x
+        if (-(data.playerListNow[index].x * Scaling.factor) + playerData.allPlayer[index].sprite.x > 0) {
+          graphicContainer.x = 0
+          playerData.allPlayer[index].sprite.x = data.playerListNow[index].x * Scaling.factor
+        } else {
+          graphicContainer.x = -(data.playerListNow[index].x * Scaling.factor) + playerData.allPlayer[index].sprite.x 
+        }
       } else playerData.allPlayer[index].sprite.x = data.playerListNow[index].x * Scaling.factor
     })
     updateDeletePlayer(data.playerListNow)
@@ -318,6 +288,16 @@ class Main extends Component {
   componentDidMount() {
     // document.body.appendChild(app.renderer.view)
     document.getElementById('mainCanvas').appendChild(app.renderer.view)
+    socket.on('getDataObject', (data) => {
+      const { showObjectData } = this.props
+      showObjectData(data)
+      // if (data.status === 'inspectation') console.log('wait : ' + data.timeMillisec / 1000 + 'seconds')
+      // else if (data.status === 'complete') {
+      //   console.log('complete !') 
+      //   console.log(data.objectData)
+      //   showObjectData(data.objectData)
+      // }
+    })
 
     const assetsLoaded = () => {
       for (let i = 0; i < 12; i += 1) {

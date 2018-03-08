@@ -9,6 +9,7 @@
     "pixi-layers": "^0.1.4",
     "pixi.js": "^4.5.5",
     "react": "^15.6.1",
+    "react-animations": "^1.0.0",
     "react-bootstrap": "^0.31.2",
     "react-dom": "^15.6.1",
     "react-progress-button": "^5.1.0",

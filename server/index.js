@@ -77,10 +77,11 @@ class Player {
   }
 
   updatePosition() {
-    if (this.pressingRight) this.speedX = this.maxSpeed;
-    else if (this.pressingLeft) this.speedX = -this.maxSpeed;
-    else this.speedX = 0; 
-    this.x += this.speedX
+    if (this.pressingRight) this.speedX = this.maxSpeed
+    else if (this.pressingLeft) this.speedX = -this.maxSpeed
+    else this.speedX = 0
+    if ((this.x + this.speedX) < 0) this.x += 0
+    else this.x += this.speedX
   }
 
 }
@@ -134,12 +135,33 @@ io.on('connection', (client) => {
         objectData: {
           name: '????',
           actions: [
-            'action1',
-            'action2'
+            'walkTo',
+            'inspect'
           ],
           id: data.objectId
         }
       })
+    } else if (data.inputId === 'clickAction') {
+      client.emit('getDataObject', {
+        status: 'inspecting',
+        timeMillisec: 3500,
+        objectData: {
+          name: '????',
+          description: '??????????????',
+          id: data.objectId
+        },
+        id: data.objectId
+      })
+      setTimeout(() => {
+        client.emit('getDataObject', {
+          status: 'complete',
+          objectData: {
+            name: 'grass',
+            description: 'grass grass grass test',
+            id: data.objectId
+          }
+        })
+      }, 3500)
     }
   });
 });
