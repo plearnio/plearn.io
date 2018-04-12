@@ -9,9 +9,9 @@ import {
   Tab,
 } from 'react-bootstrap'
 
-import Main from './components/playground/Main'
+import Playground from './components/pages/Playground'
 
-//classes
+// classes
 import ScalingWindow from './classes/ScalingWindow'
 
 const Scaling = new ScalingWindow()
@@ -93,6 +93,7 @@ const MenuPanel = styled.div`
 `
 
 const MenuData = styled.div`
+  padding: 20px;
   position: absolute;
   width: 100%;
   height: 100%;
@@ -103,7 +104,7 @@ const NoPaddingCol = styled(Col)`
   padding: 0px;
 `
 
-const PlayGround = styled(Grid)`
+const PanelPlayground = styled(Grid)`
   width: 100%;
   height: 100%;
   padding: 0px;
@@ -116,6 +117,7 @@ class App extends Component {
     super(props)
     this.state = {
       key: 1,
+      login: false,
       showMenu: false,
       hideAll: false,
       menuSelect: [false, false],
@@ -200,8 +202,9 @@ class App extends Component {
     window.onresize = () => {
       this.resizeMenu()
     }
+    console.log(this.props)
     return (
-      <PlayGround>
+      this.props.userData && <PanelPlayground>
         <MenuPanel
           wdWidth={this.state.windowWidthLong}
           show={this.state.showMenu}
@@ -218,13 +221,25 @@ class App extends Component {
             Bag
           </BagMenuButton>
           <MenuData>
-            {this.state.focusObject.status}
-            <br />
-            {(this.state.focusObject.status !== 'no object') ? this.state.focusObject.objectData.name : 'no object inspected'}
+            {this.state.menuSelect[0] && (
+              <div>
+                <h3>Main panel</h3>
+                <h5>หน้าหลัก</h5>
+                <div>{this.state.focusObject.status}</div>
+                <br />
+                <div>{(this.state.focusObject.status !== 'no object') ? this.state.focusObject.objectData.name : 'no object inspected'}</div>
+              </div>
+            )}
+            {this.state.menuSelect[1] && (
+              <div>
+                <h3>Bag</h3>
+                <h5>กระเป๋า</h5>
+              </div>
+            )}
           </MenuData>
         </MenuPanel>
-        <Main showObjectData={(data) => { this.setMainMenu(data) }} />
-      </PlayGround>
+        <Playground showObjectData={(data) => { this.setMainMenu(data) }} />
+      </PanelPlayground>
     )
   }
 }

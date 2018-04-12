@@ -7,7 +7,6 @@ class Background {
       const texture = PIXI.Texture.fromImage(`http://localhost:4000/game/getBackground/1/${url}/${i}`);
       const layerBackground = new PIXI.Sprite(texture)
       layerBackground.interactive = true
-      // center bottom bg
       layerBackground.anchor.set(0, 1)
       layerBackground.x = windowW
       layerBackground.y = windowH

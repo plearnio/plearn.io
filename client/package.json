@@ -4,7 +4,8 @@
   "private": true,
   "dependencies": {
     "axios": "^0.17.1",
-    "bootstrap": "^3.3.7",
+    "bootstrap": "3.3.7",
+    "js-cookie": "^2.2.0",
     "pixi-display": "^1.1.1",
     "pixi-layers": "^0.1.4",
     "pixi.js": "^4.5.5",
@@ -12,11 +13,12 @@
     "react-animations": "^1.0.0",
     "react-bootstrap": "^0.31.2",
     "react-dom": "^15.6.1",
+    "react-router-dom": "^4.2.2",
     "react-progress-button": "^5.1.0",
     "react-redux": "^5.0.6",
     "redux": "^3.7.2",
     "socket.io-client": "^2.0.4",
-    "styled-components": "^2.1.2"
+    "styled-components": "^3.2.1"
   },
   "devDependencies": {
     "eslint": "^3.19.0",
