@@ -1,11 +1,12 @@
 const LocalStrategy = require('passport-local').Strategy
 const FacebookStrategy = require('passport-facebook').Strategy
 
-const User = require('../models/user')
+const User = require('../models/olduser')
 
 const configAuth = require('./auth')
 
 module.exports = (passport) => {
+
   // used to serialize the user for the session
   passport.serializeUser((user, done) => {
     done(null, user.id)
@@ -18,56 +19,73 @@ module.exports = (passport) => {
     })
   })
 
-  // =========================================================================
-  // LOCAL LOGIN =============================================================
-  // =========================================================================
+  //
+  // LOCAL LOGIN
+  //
+
   passport.use('local-login', new LocalStrategy({
+
     // by default, local strategy uses username and password, we will override with email
     usernameField: 'email',
     passwordField: 'password',
-    passReqToCallback: true // lets us check if a user is logged in or not
+
+    // lets us check if a user is logged in or not
+    passReqToCallback: true
+
   },
   (req, email, password, done) => {
-    if (email)
-      email = email.toLowerCase() // Use lower-case e-mails to avoid case-sensitive e-mail matching
+
+    // console.log(req.body)
+    // console.log(req)
+    let emailLowerCase
+    // Use lower-case e-mails to avoid case-sensitive e-mail matching
+    if (email) emailLowerCase = email.toLowerCase()
 
     process.nextTick(() => {
-      User.findOne({ 'local.email': email }, (err, user) => {
+      User.findOne({ 'local.email': emailLowerCase }, (err, user) => {
+
         // if there are any errors, return the error
-        if (err)
+        if (err) {
           return done(err)
+        }
 
         // if no user is found, return the message
-        if (!user)
-          return done(null, false, req.flash('loginMessage', 'No user found.'))
+        if (!user) {
+          return done(null, false, { code: 104, loginMessage: 'No user found.' })
+        }
 
-        if (!user.validPassword(password))
-          return done(null, false, req.flash('loginMessage', 'Oops! Wrong password.'))
+        // check validPassword from bcrypt
+        if (!user.validPassword(password)) return done(null, false, { code: 105, loginMessage: 'Oops! Wrong password.' })
 
         // all is well, return user
-        else
-          return done(null, user)
+        return done(null, user, { code: 100, loginMessage: 'Login success !.'})
       })
     })
   }))
 
-  // =========================================================================
-  // LOCAL SIGNUP ============================================================
-  // =========================================================================
+  //
+  // LOCAL SIGNUP
+  //
+
   passport.use('local-signup', new LocalStrategy({
+
     // by default, local strategy uses username and password, we will override with email
     usernameField: 'email',
     passwordField: 'password',
-    passReqToCallback: true // allows us to pass in the req from our route
-  },
-  (req, email, password, done) => {
-    if (email)
-      email = email.toLowerCase() // Use lower-case e-mails to avoid case-sensitive e-mail matching
+
+    // allows us to pass in the req from our route
+    passReqToCallback: true
+  }, (req, email, password, done) => {
+
+    let emailLowerCase
+    // Use lower-case e-mails to avoid case-sensitive e-mail matching
+    if (email) emailLowerCase = email.toLowerCase()
 
     process.nextTick(() => {
+
     // if the user is not already logged in:
     if (!req.user) {
-      User.findOne({ 'local.email': email }, (err, user) => {
+      User.findOne({ 'local.email': emailLowerCase }, (err, user) => {
         if (err)
           return done(err)
 

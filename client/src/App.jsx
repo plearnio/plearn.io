@@ -1,241 +1,247 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import {
   Grid,
   Row,
   Col,
   Tabs,
   Tab,
-  Modal,
-  Button
 } from 'react-bootstrap'
-import logo from './logo.svg'
-import island from './assets/island.png'
-import plearnLogo from './assets/logo.png'
-import Main from './components/playground/Main'
 
-import Bag from './components/elements/Bag'
-import Quest from './components/elements/Quest'
-import HandItem from './components/elements/HandItem'
-import CraftTable from './components/elements/CraftTable'
-import InteractedItem from './components/elements/InteractedObject'
-import timeImg from './assets/time.png'
+import Playground from './components/pages/Playground'
+
+// classes
+import ScalingWindow from './classes/ScalingWindow'
+
+const Scaling = new ScalingWindow()
+Scaling.scalingApp('main')
+console.log(Scaling.factor)
+
+const MenuButton = styled.button`
+  position: absolute;
+  left: 0px;
+  outline: none;
+`
+
+const HideMenuButton = styled(MenuButton)`
+  top: 0px;
+  border-top-left-radius: 2vw;
+  border-bottom-left-radius: 2vw;
+  width: 5vw;
+  min-width: 40px;
+  height: 5vh;
+  padding: 1vh;
+  text-align: center;
+  font-size: 1vh;
+`
+
+const MainMenuButton = styled(MenuButton)`
+  top: 5vh;
+  border-top-left-radius: 2vw;
+  border-bottom-left-radius: 2vw;
+  width: 5vw;
+  min-width: 40px;
+  height: 10vh;
+  padding: 1vh;
+  text-align: center;
+  font-size: 2vh;
+  ${props => props.menuSelected && css`
+    border-right-style: none;
+  `};
+`
+
+const BagMenuButton = styled(MenuButton)`
+  top: 15vh;
+  border-top-left-radius: 2vw;
+  border-bottom-left-radius: 2vw;
+  width: 5vw;
+  min-width: 40px;
+  height: 10vh;
+  padding: 1vh;
+  text-align: center;
+  font-size: 2vh;
+  ${props => props.menuSelected && css`
+    border-right-style: none;
+  `};
+`
+const MenuPanel = styled.div`
+  border-top-left-radius: 2vw;
+  border-bottom-left-radius: 2vw;
+  right: 0;
+  font-size: 1.2em;
+  max-width: 90%;
+  /* background-color: white; */
+  position:fixed;
+  height: 100%;
+  width: 5vw;
+  padding-left: ${props => props.wdWidth ? '5vw' : '40px'} ;
+  min-width: 40px;
+  overflow: hidden;
+  z-index: 20;
+  -webkit-transition: ease-in 0.5s; /* For Safari 3.1 to 6.0 */
+  transition: height width ease-in .5s;
+  
+  ${props => props.show && css`
+    width: 500px;
+  `};
+
+  ${props => props.hideAll && css`
+    width: 5vw;
+    height: 5vh;
+  `};
+`
+
+const MenuData = styled.div`
+  padding: 20px;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 1);
+`
 
 const NoPaddingCol = styled(Col)`
   padding: 0px;
 `
-const OverflowWithNoPaddingCol = styled(NoPaddingCol)`
-  overflow-x : auto;
-`
 
-const PlayGround = styled(Grid)`
-  padding: 20px;
-  background-color: white;
-`
-
-const Sidebar = styled(NoPaddingCol)`
-  height: 640px;
-  background-color: white;
-  overflow: auto;
-  border: 1px solid #ddd;
-`
-
-const AppHeader = styled.div`
-  color: #282828;
-  text-align: center;
-`
-
-const ShowItem = styled.div`
-  /* display: none; Hidden by default */
-  padding:10px;
-  width: 100%; 
-  overflow: auto;
-  background-color: white;
-  color: #282828;
-`
-const Menu = styled(Tabs)`
-  background-color: #eee;
-`
-const SubMenu = styled(Tab)`
-  background-color: white;
-  /* border: 1px solid #ddd; */
-  border: none;
-`
-
-const ImgTime = styled.img`
-float:left;
-margin-right: 20px;
-  width: 60px;
-  transform: rotate(${props => props.degree});
-`
-
-const ImgCenterRespon = styled.img`
-  max-width: 85%;
-  margin-top: 90px;
-`
-
-const ObjectPanel = styled.div`
+const PanelPlayground = styled(Grid)`
   width: 100%;
-  padding: 10px;
-  background-color: #fff;
-  min-height: 300px;
-  color: #aaa;
-  border: 1px solid #eee;
-  text-align: left;
+  height: 100%;
+  padding: 0px;
+  background-color: black;
+  overflow: hidden;
 `
-
-const StatusBar = styled.div`
-border: 1px solid #ddd;
-  /* display: none; Hidden by default */
-  padding:10px;
-  width: 100%; 
-  overflow: auto;
-  background-color: white;
-  color: #282828;
-  height: 130px;
-  overflow-y: hidden;
-`
-
-const ButtonItem = styled.button`
-  background-color: #fff;
-  border: 1px solid #bbb;
-  padding: 10px;
-  &:hover {
-    background-color:#ddd;
-  }
-`
-// interact item
 
 class App extends Component {
   constructor(props) {
     super(props)
     this.state = {
       key: 1,
-      show: false,
-      date: new Date()
+      login: false,
+      showMenu: false,
+      hideAll: false,
+      menuSelect: [false, false],
+      windowWidthLong: window.innerWidth > 700,
+      date: new Date(),
+      focusObject: {
+        data: {},
+        status: 'no object'
+      }
     }
     this.handleSelect = this.handleSelect.bind(this)
-    // ({ status, activeObject, listItem }) => 
-  }
-
-  componentDidMount() {
-    this.timerID = setInterval(
-      () => this.tick(),
-      1000
-    );
-  }
-
-  componentWillUnmount() {
-    clearInterval(this.timerID);
-  }
-
-  tick() {
-    this.setState({
-      date: new Date()
-    });
+    this.handleMenu = this.handleMenu.bind(this)
+    this.selectMenu = this.selectMenu.bind(this)
+    this.resizeMenu = this.resizeMenu.bind(this)
+    this.setMainMenu = this.setMainMenu.bind(this)
   }
 
   handleSelect(key) {
     this.setState({ key });
   }
 
+  selectMenu(key) {
+    if (this.state.menuSelect[key] === true) {
+      this.setState({
+        showMenu: !this.state.showMenu
+      })
+    } else {
+      const clearMenu = [false, false]
+      clearMenu[key] = true
+      console.log(this.state.showMenu)
+      if (this.state.showMenu) {
+        this.setState({
+          menuSelect: clearMenu
+        })
+      } else {
+        this.setState({
+          menuSelect: clearMenu,
+          showMenu: !this.state.showMenu
+        })
+      }
+    }
+  }
+
+  handleMenu() {
+    this.setState({
+      hideAll: !this.state.hideAll
+    })
+  }
+
+  setMainMenu(data) {
+    console.log(data)
+    if (data.status === 'inspecting') {
+      console.log( 'wait : ' + data.timeMillisec / 1000 + 'seconds')
+      this.setState({
+        focusObject: data
+      })
+      console.log(this.state.focusObject)
+      if (this.state.menuSelect[0] === true) {
+        this.setState({
+          menuSelect: [true, false]
+        })
+      } else {
+        this.selectMenu(0)
+      }
+    }
+    else if (data.status === 'complete') {
+      console.log('complete !') 
+      console.log(data)
+      this.setState({
+        focusObject: data
+      })
+    }
+  }
+
+  resizeMenu() {
+    this.setState({
+      windowWidthLong: window.innerWidth > 700
+    })
+  }
+
   render() {
-    let close = () => this.setState({ show: false });
-    const { status, activeObject, listItem, setTime } = this.props
-    var d = new Date();
-    var n = d.getMinutes();
-    setTime(parseInt(n/5*2))
+    window.onresize = () => {
+      this.resizeMenu()
+    }
+    console.log(this.props)
     return (
-      <div className="App">
-        <Grid fluid>
-          <center><ImgCenterRespon src={plearnLogo} width="450" /></center>
-        </Grid>
-        <Grid fluid>
-        <center><ImgCenterRespon src={island} width="1280"/></center>
-        </Grid>
-        <PlayGround>
-          <Row className="show-grid">
-            <OverflowWithNoPaddingCol xs={12} md={6}>
-              <StatusBar>
-                <ImgTime  src={timeImg} degree={((n / 5 * 2 * 15) + 215) + 'deg'} alt="fireSpot" />
-                <h3>game time : {parseInt(n/5*2)}:00</h3><br/>
-                <h4>local time : {this.state.date.toLocaleTimeString()}.</h4>
-              </StatusBar>
-            </OverflowWithNoPaddingCol>
-            <OverflowWithNoPaddingCol xs={12} md={6}>
-              <StatusBar>
-                <h4>Health: 100</h4>
-                <h4>hunger: 100</h4>
-                <h4>Energy: 100</h4>
-              </StatusBar>
-            </OverflowWithNoPaddingCol>
-            <OverflowWithNoPaddingCol xs={12} md={9}>
-              <Main />
-            </OverflowWithNoPaddingCol>
-            <Sidebar xs={12} md={3} >
-              <Menu animation={false} activeKey={this.state.key} onSelect={this.handleSelect} id="controlled-tab-example">
-                <SubMenu eventKey={1} title="Main">
-                  <ShowItem>
-                    <AppHeader>
-                      <h3> Interact Object </h3>
-                      <ObjectPanel>
-                        {
-                          activeObject &&
-                          <div>
-                            {
-                            activeObject.name !== 'background' &&
-                            <InteractedItem />
-                            }
-                          </div>
-                        }
-                      </ObjectPanel>
-                      <HandItem />
-                    </AppHeader>
-                  </ShowItem>
-                </SubMenu>
-                <SubMenu eventKey={2} title="Bag">
-                  <AppHeader>
-                    <ShowItem>
-                      <Bag>
-                        <h2> Your bag </h2>
-                      </Bag>
-                      <CraftTable>
-                        <h2> Craft table </h2>
-                      </CraftTable>
-                    </ShowItem>
-                  </AppHeader>
-                </SubMenu>
-                <SubMenu eventKey={3} title="Quest">
-                  <AppHeader>
-                    <ShowItem>
-                      <Quest/>
-                    </ShowItem>
-                  </AppHeader>
-                </SubMenu>
-              </Menu>
-            </Sidebar>
-          </Row>
-        </PlayGround>
-      </div>
+      this.props.userData && <PanelPlayground>
+        <MenuPanel
+          wdWidth={this.state.windowWidthLong}
+          show={this.state.showMenu}
+          hideAll={this.state.hideAll}
+          factor={Scaling.factor}
+        >
+          <HideMenuButton onClick={() => this.handleMenu()}>
+            Hide
+          </HideMenuButton>
+          <MainMenuButton menuSelected={this.state.menuSelect[0]} onClick={() => this.selectMenu(0)}>
+            Main
+          </MainMenuButton>
+          <BagMenuButton menuSelected={this.state.menuSelect[1]} onClick={() => this.selectMenu(1)}>
+            Bag
+          </BagMenuButton>
+          <MenuData>
+            {this.state.menuSelect[0] && (
+              <div>
+                <h3>Main panel</h3>
+                <h5>หน้าหลัก</h5>
+                <div>{this.state.focusObject.status}</div>
+                <br />
+                <div>{(this.state.focusObject.status !== 'no object') ? this.state.focusObject.objectData.name : 'no object inspected'}</div>
+              </div>
+            )}
+            {this.state.menuSelect[1] && (
+              <div>
+                <h3>Bag</h3>
+                <h5>กระเป๋า</h5>
+              </div>
+            )}
+          </MenuData>
+        </MenuPanel>
+        <Playground showObjectData={(data) => { this.setMainMenu(data) }} />
+      </PanelPlayground>
     )
   }
 }
 
-const mapStateToProps = (state) => {
-  return {
-    status: state.world.status,
-    activeObject: state.world.activeObject,
-    listItem: state.item.listItem
-  }
-}
-
-const mapDispatchToProps = (dispatch) => {
-  return {
-    setTime: (object) => {
-      dispatch({ type: 'SET_TIME', payload: object })
-    },
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(App)
+export default App

@@ -7,24 +7,23 @@ class Background {
       const texture = PIXI.Texture.fromImage(`http://localhost:4000/game/getBackground/1/${url}/${i}`);
       const layerBackground = new PIXI.Sprite(texture)
       layerBackground.interactive = true
-      // center bottom bg
-      layerBackground.anchor.set(0, 1)
-      layerBackground.x = windowW
-      layerBackground.y = windowH
+      layerBackground.anchor.set(0, 0)
+      layerBackground.x = 0
+      layerBackground.y = 0
       Element.push(layerBackground)
     }
     this.Element = Element
     this.name = name
     this.layers = layers
+    console.log(this.Element)
   }
 
-  parallax(x) {
+  parallax(x, factor) {
     for (let i = 0; i < this.layers; i += 1) {
-      if(i != 2)
-      this.Element[i].x = (-x * (i / 10))
+      this.Element[i].x = x / ((this.layers - i) * 5)
+      this.Element[i].width = ((1080 / this.Element[i]._texture.baseTexture.realHeight) * this.Element[i]._texture.baseTexture.realWidth) * factor
+      this.Element[i].height = (1080) * factor
     }
-    this.Element[2].x += 2
-    if(this.Element[2].x > 1000) this.Element[2].x = -1000
   }
 }
 

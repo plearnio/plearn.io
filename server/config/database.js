@@ -1,5 +1,7 @@
 module.exports = {
-
-  'url': 'mongodb://localhost/passport'
-
+  mongo: {
+    host: 'localhost',
+    port: '27017',
+    database: process.env.MODE === 'production' ? 'plearn' : 'plearn_test'
+  }
 }

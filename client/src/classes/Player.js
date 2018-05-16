@@ -1,4 +1,4 @@
-import showEffect from '../game_methods/showEffect'
+// import showEffect from '../game_methods/showEffect'
 
 const PIXI = require('pixi.js')
 
@@ -18,6 +18,10 @@ class Player {
         name: 'interact',
         picName: 'hero-idle',
         frame: 8
+      }, {
+        name: 'auto-walk',
+        picName: 'hero-walk',
+        frame: 7
       }
     ]
     this.animateSet = {}
@@ -52,74 +56,6 @@ class Player {
     this.animate.x = this.pos.x
     this.animate.y = this.pos.y
     this.animate.gotoAndPlay(0)
-  }
-
-  checkSide(mousePosition) {
-    if (mousePosition.x > this.animate.x) {
-      this.animate.scale.set(4, 4)
-    } else if (mousePosition.x <= this.animate.x - 1) {
-      this.animate.scale.set(-4, 4)
-    }
-  }
-
-  // use in 2 dimension
-  walkToAny(goal) {
-    if (this.pos !== goal) {
-      const dx = this.pos.x - this.animate.x
-      const dy = this.pos.y - this.animate.y
-      const angle = Math.atan2(dy, dx)
-      const xVelo = Math.cos(angle) * this.speed
-      const yVelo = Math.sin(angle) * this.speed
-      this.animate.x += xVelo
-      this.animate.y += yVelo
-    }
-  }
-
-  move(setStatus) {
-    const dx = parseInt(this.mousePoint.x - this.animate.x, 10)
-    if (!(dx > -1.5 && dx < 1.5)) {
-      this.status = 'move'
-      const angle = Math.atan2(0, dx)
-      const xVelo = Math.cos(angle) * this.speed
-      this.animate.x += xVelo
-    } else {
-      this.status = 'idle'
-      setStatus('idle')
-    }
-  }
-
-  setMousePoint(value) {
-    this.mousePoint = value
-  }
-
-  checkStatus(status, setStatus) {
-    if (this.textureStatus !== this.status) {
-      this.animate.textures = this.animateSet[this.status]
-      this.animate.gotoAndPlay(0)
-      this.textureStatus = this.status
-    }
-    switch (status) {
-      case 'move' :
-        this.move(setStatus)
-        break
-      case 'idle' :
-        this.interact()
-        break
-      default :
-        this.idle()
-        break
-    }
-    return this.status
-  }
-
-  idle() {
-    this.animate.x += 0
-    this.status = 'idle'
-  }
-
-  interact() {
-    this.animate.x += 0
-    this.status = 'interact'
   }
 }
 
