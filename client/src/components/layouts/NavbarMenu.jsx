@@ -14,6 +14,8 @@ import {
   withRouter,
 } from 'react-router-dom';
 
+import configSandbox from '../../config/sandbox'
+
 const TopNavbar = styled(Navbar)`
   position: absolute;
   width: 100%;
@@ -25,7 +27,7 @@ const NavbarMenu = withRouter(
     const logOut = () => {
       const authOptions = {
         method: 'GET',
-        url: 'http://localhost:5000/authen/logout',
+        url: `${configSandbox.url}/logout`,
         headers: {
           Authorization: Cookies.get('__token'),
           'Content-Type': 'application/x-www-form-urlencoded'

@@ -1,20 +1,21 @@
-module.exports = function (app, passport) {
+module.exports = (authen, passport) => {
 // normal routes ===============================================================
 
     // show the home page (will also have our login links)
-  app.get('/', function(req, res) {
+  authen.get('/', function(req, res) {
     res.render('index.ejs')
   })
 
     // PROFILE SECTION =========================
-  app.get('/profile', isLoggedIn, function(req, res) {
+  authen.get('/profile', isLoggedIn, function(req, res) {
+    console.log()
     res.render('profile.ejs', {
       user: req.user
     })
   })
 
     // LOGOUT ==============================
-  app.get('/logout', function(req, res) {
+  authen.get('/logout', function(req, res) {
     req.logout()
     res.redirect('/')
   })
@@ -26,25 +27,30 @@ module.exports = function (app, passport) {
   // locally --------------------------------
   // LOGIN ===============================
   // show the login form
-  app.get('/login', (req, res) => {
+  authen.get('/login', (req, res) => {
     res.render('login.ejs', { message: req.flash('loginMessage') })
   })
 
   // process the login form
-  app.post('/login', passport.authenticate('local-login', {
-    successRedirect: '/profile', // redirect to the secure profile section
-    failureRedirect: '/login', // redirect back to the signup page if there is an error
-    failureFlash: true // allow flash messages
-  }))
+  authen.post('/login', (req, res, next) => {
+    passport.authenticate('local-login', (errAuthen, user, info) => {
+      if (errAuthen) return next(errAuthen)
+      if (info.code !== 100) return res.send(info)
+      req.logIn(user, (errLogIn) => {
+        if (errLogIn) return next(errLogIn)
+        return res.send(info)
+      })
+    })(req, res, next)
+  })
 
   // SIGNUP =================================
   // show the signup form
-  app.get('/signup', (req, res) => {
+  authen.get('/signup', (req, res) => {
     res.render('signup.ejs', { message: req.flash('signupMessage') })
   })
 
         // process the signup form
-  app.post('/signup', passport.authenticate('local-signup', {
+  authen.post('/signup', passport.authenticate('local-signup', {
     successRedirect: '/profile', // redirect to the secure profile section
     failureRedirect: '/signup', // redirect back to the signup page if there is an error
     failureFlash: true // allow flash messages
@@ -53,10 +59,10 @@ module.exports = function (app, passport) {
   // facebook -------------------------------
 
   // send to facebook to do the authentication
-  app.get('/auth/facebook', passport.authenticate('facebook', { scope: 'email' }))
+  authen.get('/auth/facebook', passport.authenticate('facebook', { scope: 'email' }))
 
   // handle the callback after facebook has authenticated the user
-  app.get('/auth/facebook/callback',
+  authen.get('/auth/facebook/callback',
     passport.authenticate('facebook', {
       successRedirect: '/profile',
       failureRedirect: '/'
@@ -66,10 +72,10 @@ module.exports = function (app, passport) {
 // =============================================================================
 
   // locally --------------------------------
-  app.get('/connect/local', (req, res) => {
+  authen.get('/connect/local', (req, res) => {
     res.render('connect-local.ejs', { message: req.flash('loginMessage') })
   })
-  app.post('/connect/local', passport.authenticate('local-signup', {
+  authen.post('/connect/local', passport.authenticate('local-signup', {
     successRedirect: '/profile', // redirect to the secure profile section
     failureRedirect: '/connect/local', // redirect back to the signup page if there is an error
     failureFlash: true // allow flash messages
@@ -78,10 +84,10 @@ module.exports = function (app, passport) {
   // facebook -------------------------------
 
   // send to facebook to do the authentication
-  app.get('/connect/facebook', passport.authorize('facebook', { scope: 'email' }))
+  authen.get('/connect/facebook', passport.authorize('facebook', { scope: 'email' }))
 
   // handle the callback after facebook has authorized the user
-  app.get('/connect/facebook/callback',
+  authen.get('/connect/facebook/callback',
     passport.authorize('facebook', {
       successRedirect: '/profile',
       failureRedirect: '/'
@@ -94,7 +100,7 @@ module.exports = function (app, passport) {
 // user account will stay active in case they want to reconnect in the future
 
   // local -----------------------------------
-  app.get('/unlink/local', isLoggedIn, (req, res) => {
+  authen.get('/unlink/local', isLoggedIn, (req, res) => {
     const user = req.user
     user.local.email = undefined
     user.local.password = undefined
@@ -104,7 +110,7 @@ module.exports = function (app, passport) {
   })
 
   // facebook -------------------------------
-  app.get('/unlink/facebook', isLoggedIn, (req, res) => {
+  authen.get('/unlink/facebook', isLoggedIn, (req, res) => {
     const user = req.user
     user.facebook.token = undefined
     user.save((err) => {

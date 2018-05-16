@@ -14,6 +14,7 @@ import {
 import { Redirect } from 'react-router-dom'
 import Cookies from 'js-cookie'
 import styled from 'styled-components'
+import configSandbox from '../../config/sandbox'
 
 const CenterGrid = styled(Grid)`
   max-width: 100%;
@@ -51,7 +52,7 @@ class Login extends Component {
   signIn(username, password) {
     const authOptions = {
       method: 'POST',
-      url: 'http://localhost:5000/authen/login',
+      url: `${configSandbox.url}/login`,
       data: {
         username: username,
         password: password
@@ -73,6 +74,7 @@ class Login extends Component {
         })
         this.setState({ redirectToReferrer: true })
       } else {
+        console.log(res)
         alert('no response from server')
       }
     })

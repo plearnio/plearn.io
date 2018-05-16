@@ -4,7 +4,6 @@ import Cookies from 'js-cookie'
 import {
   BrowserRouter as Router,
   Route,
-  Redirect
 } from 'react-router-dom';
 
 import NavbarMenu from './components/layouts/NavbarMenu'
@@ -14,6 +13,8 @@ import Login from './components/pages/Login'
 import App from './App'
 
 import CheckLoginRoute from './components/methods/CheckLoginRoute'
+
+import configSandbox from './config/sandbox'
 
 
 class Main extends Component {
@@ -37,7 +38,7 @@ class Main extends Component {
   checkToken() {
     const authOptions = {
       method: 'GET',
-      url: 'http://localhost:5000/authen/userByToken/',
+      url: `${configSandbox.url}/userByToken/`,
       headers: {
         Authorization: Cookies.get('__token'),
         'Content-Type': 'application/x-www-form-urlencoded'
@@ -54,10 +55,10 @@ class Main extends Component {
   }
 
   componentWillMount() {
-    if  (Cookies.get('__token')) {
+    if (Cookies.get('__token')) {
       this.checkToken().then((userData) => {
         console.log(userData)
-        if  (userData && userData.username) {
+        if (userData && userData.username) {
           this.setState({
             userData: {
               user: userData
@@ -77,7 +78,7 @@ class Main extends Component {
     }
   }
 
-  render(){
+  render() {
     return (
       <Router>
         {
