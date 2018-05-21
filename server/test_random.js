@@ -1,0 +1,49 @@
+const land = [{
+  name: 'plain',
+  rarity: 1,
+  types: [{
+    name: 'plain_8',
+    numTile: 8,
+    rarity: 1,
+  }, {
+    name: 'plain_5',
+    numTile: 5,
+    rarity: 1,
+  }, {
+    name: 'plain_3',
+    numTile: 3,
+    rarity: 1,
+  }, {
+    name: 'plain_2',
+    numTile: 2,
+    rarity: 3,
+  }, {
+    name: 'plain_1',
+    numTile: 1,
+    rarity: 5,
+  }]
+}, {
+  name: 'water',
+  rarity: 3,
+  types: [{
+    name: 'water_4',
+    numTile: 4,
+    rarity: 5,
+  }, {
+    name: 'water_2',
+    numTile: 5,
+    rarity: 2,
+  }, {
+    name: 'water_1',
+    numTile: 1,
+    rarity: 1,
+  }, {
+    name: 'water_1_2',
+    numTile: 1,
+    rarity: 1,
+  }, {
+    name: 'water_1_3',
+    numTile: 1,
+    rarity: 1,
+  }]
+}]

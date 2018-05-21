@@ -22,47 +22,61 @@ const MenuButton = styled.button`
   position: absolute;
   left: 0px;
   outline: none;
+  border-top-left-radius: 2vw;
+  border-bottom-left-radius: 2vw;
+  width: 5vw;
+  color: white;
+  background-color:#303843
+  min-width: 40px;
+  height: 10vh;
+  padding: 1vh;
+  text-align: center;
+  font-size: 2vh;
 `
 
 const HideMenuButton = styled(MenuButton)`
   top: 0px;
-  border-top-left-radius: 2vw;
-  border-bottom-left-radius: 2vw;
-  width: 5vw;
-  min-width: 40px;
   height: 5vh;
-  padding: 1vh;
-  text-align: center;
   font-size: 1vh;
 `
 
 const MainMenuButton = styled(MenuButton)`
   top: 5vh;
-  border-top-left-radius: 2vw;
-  border-bottom-left-radius: 2vw;
-  width: 5vw;
-  min-width: 40px;
-  height: 10vh;
-  padding: 1vh;
-  text-align: center;
-  font-size: 2vh;
   ${props => props.menuSelected && css`
     border-right-style: none;
+    background-color:#282828;
   `};
 `
 
 const BagMenuButton = styled(MenuButton)`
   top: 15vh;
-  border-top-left-radius: 2vw;
-  border-bottom-left-radius: 2vw;
-  width: 5vw;
-  min-width: 40px;
-  height: 10vh;
-  padding: 1vh;
-  text-align: center;
-  font-size: 2vh;
   ${props => props.menuSelected && css`
     border-right-style: none;
+    background-color:#282828;
+  `};
+`
+
+const QuestMenuButton = styled(MenuButton)`
+  top: 25vh;
+  ${props => props.menuSelected && css`
+    border-right-style: none;
+    background-color:#282828;
+  `};
+`
+
+const BookMenuButton = styled(MenuButton)`
+  top: 35vh;
+  ${props => props.menuSelected && css`
+    border-right-style: none;
+    background-color:#282828;
+  `};
+`
+
+const ChatMenuButton = styled(MenuButton)`
+  top: 45vh;
+  ${props => props.menuSelected && css`
+    border-right-style: none;
+    background-color:#282828;
   `};
 `
 const MenuPanel = styled.div`
@@ -97,7 +111,8 @@ const MenuData = styled.div`
   position: absolute;
   width: 100%;
   height: 100%;
-  background-color: rgba(255, 255, 255, 1);
+  color: white;
+  background-color: #282828;
 `
 
 const NoPaddingCol = styled(Col)`
@@ -120,7 +135,7 @@ class App extends Component {
       login: false,
       showMenu: false,
       hideAll: false,
-      menuSelect: [false, false],
+      menuSelect: [false, false, false, false, false, false],
       windowWidthLong: window.innerWidth > 700,
       date: new Date(),
       focusObject: {
@@ -220,14 +235,23 @@ class App extends Component {
           <BagMenuButton menuSelected={this.state.menuSelect[1]} onClick={() => this.selectMenu(1)}>
             Bag
           </BagMenuButton>
+          <QuestMenuButton menuSelected={this.state.menuSelect[2]} onClick={() => this.selectMenu(2)}>
+            Quests
+          </QuestMenuButton>
+          <BookMenuButton menuSelected={this.state.menuSelect[3]} onClick={() => this.selectMenu(3)}>
+            Books
+          </BookMenuButton>
+          <ChatMenuButton menuSelected={this.state.menuSelect[4]} onClick={() => this.selectMenu(4)}>
+            Chat
+          </ChatMenuButton>
           <MenuData>
             {this.state.menuSelect[0] && (
               <div>
                 <h3>Main panel</h3>
                 <h5>หน้าหลัก</h5>
-                <div>{this.state.focusObject.status}</div>
+                {/* <div>{this.state.focusObject.status}</div>
                 <br />
-                <div>{(this.state.focusObject.status !== 'no object') ? this.state.focusObject.objectData.name : 'no object inspected'}</div>
+                <div>{(this.state.focusObject.status !== 'no object') ? this.state.focusObject.objectData.name : 'no object inspected'}</div> */}
               </div>
             )}
             {this.state.menuSelect[1] && (
@@ -236,6 +260,25 @@ class App extends Component {
                 <h5>กระเป๋า</h5>
               </div>
             )}
+            {this.state.menuSelect[2] && (
+              <div>
+                <h3>Quests</h3>
+                <h5>เควส</h5>
+              </div>
+            )}
+            {this.state.menuSelect[3] && (
+              <div>
+                <h3>Books</h3>
+                <h5>หนังสือ</h5>
+              </div>
+            )}
+            {this.state.menuSelect[4] && (
+              <div>
+                <h3>Chat</h3>
+                <h5>ระบบสนทนา</h5>
+              </div>
+            )}
+            
           </MenuData>
         </MenuPanel>
         <Playground showObjectData={(data) => { this.setMainMenu(data) }} />

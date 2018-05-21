@@ -3,7 +3,7 @@ const _ = require('lodash')
 
 //  Global: object in map
 
-const objInMapArray = [
+const no_use_1 = [
   {
     name: 'grass',
     rarity: 1,
@@ -15,6 +15,7 @@ const objInMapArray = [
         "sciName": "Echinochloa muricata",
         "description":"A low, green plant that grows naturally over a lot of the earth's surface, having groups of very thin leaves that grow close together in large numbers",
         "rarity": 1,
+        "numTile": 1,
         "width": 32,
         "height":27,
         "pos":1,
@@ -56,6 +57,7 @@ const objInMapArray = [
         "sciName": "Atriplex canescens ",
         "description":"A plant with many small branches growing either directly from the ground or from a hard stem, giving the plant a rounded shape",
         "rarity": 2,
+        "numTile": 2,
         "width":454,
         "height":340,
         "pos":1,
@@ -85,6 +87,7 @@ const objInMapArray = [
         "width": 1024,
         "height":1528,
         "pos":1,
+        "numTile": 1,
         "url":"twig1",
         "extra":0,
         "scale":0.0625,
@@ -116,6 +119,7 @@ const objInMapArray = [
         "sciName": "Malus pumila",
         "description":"A twig of apple tree",
         "rarity": 3,
+        "numTile": 1,
         "width": 1024,
         "height":2806,
         "pos":1,
@@ -149,6 +153,7 @@ const objInMapArray = [
         "sciName": "Pinus",
         "description":"A twig of pine",
         "rarity": 6,
+        "numTile": 1,
         "width": 1479,
         "height":2000,
         "pos":1,
@@ -180,7 +185,7 @@ const objInMapArray = [
   },
   {
     name: 'flower',
-    rarity: 4,
+    rarity: 7,
     types:
     [
       {
@@ -194,6 +199,7 @@ const objInMapArray = [
         "pos":1,
         "url":"flower1",
         "extra":0,
+        "numTile": 1,
         "scale":0.0625,
         "actions":[
           {
@@ -226,6 +232,7 @@ const objInMapArray = [
         "width": 1024,
         "height":1024,
         "pos":1,
+        "numTile": 1,
         "url":"flower2",
         "extra":0,
         "scale":0.0625,
@@ -259,6 +266,7 @@ const objInMapArray = [
         "rarity": 25,
         "width": 336,
         "height":455,
+        "numTile": 1,
         "pos":1,
         "url":"flower3",
         "extra":0,
@@ -292,6 +300,7 @@ const objInMapArray = [
         "description":"titan arum, is a flowering plant with the largest unbranched inflorescence in the world. ",
         "rarity": 64,
         "width": 1800,
+        "numTile": 1,
         "height":1384,
         "pos":1,
         "url":"flower4",
@@ -322,7 +331,7 @@ const objInMapArray = [
   },
   {
     name: 'rock',
-    rarity: 5,
+    rarity: 10,
     types:
     [
       {
@@ -331,6 +340,7 @@ const objInMapArray = [
         "sciName": "-",
         "description":"common rock",
         "rarity": 2,
+        "numTile": 1,
         "width": 256,
         "height":196,
         "pos":1,
@@ -366,6 +376,7 @@ const objInMapArray = [
         "description":"Igneous rock or magmatic rock, is one of the three main rock types, the others being sedimentary and metamorphic. ",
         "rarity": 8,
         "width": 164,
+        "numTile": 1,
         "height":164,
         "pos":1,
         "url":"rock2",
@@ -395,6 +406,7 @@ const objInMapArray = [
         "pos":1,
         "url":"tree1",
         "extra":-10,
+        "numTile": 2,
         "scale":2,
         "actions":[
           {
@@ -412,6 +424,7 @@ const objInMapArray = [
         "width":98,
         "height":308,
         "pos":1,
+        "numTile": 1,
         "url":"tree2",
         "extra":0,
         "scale":0.2,
@@ -432,6 +445,7 @@ const objInMapArray = [
         "height":389,
         "pos":1,
         "url":"tree3",
+        "numTile": 3,
         "extra":0,
         "scale":0.6,
         "actions":[
@@ -443,6 +457,83 @@ const objInMapArray = [
       }]
   }
 ]
+
+const no_use_2 = {
+  "id":0,
+  "name":"grass1",
+  "sciName": "Echinochloa muricata",
+  "description":"A low, green plant that grows naturally over a lot of the earth's surface, having groups of very thin leaves that grow close together in large numbers",
+  "rarity": 1,
+  "width": 32,
+  "height":27,
+  "pos":1,
+  "url":"grass1",
+  "extra":0,
+  "numTile": 1,
+  "scale":1,
+  "actions":[
+    {
+    "name":"move",
+    "item":[]
+    },
+    {
+      "name":"gather",
+      "item":[
+        {
+          "id":0,
+          "name":"grass1",
+          "width": 32,
+          "height":27,
+          "pos":1,
+          "url":"grass1",
+          "extra":0,
+          "scale":1.5
+        }
+      ]
+    }
+  ]
+}
+
+const land = [{
+  name: 'plain',
+  rarity: 1,
+  types: [{
+    name: 'plain_8',
+    numTile: 8,
+    rarity: 2,
+  }, {
+    name: 'plain_5',
+    numTile: 5,
+    rarity: 1,
+  }, {
+    name: 'plain_3',
+    numTile: 3,
+    rarity: 1,
+  }, {
+    name: 'plain_2',
+    numTile: 2,
+    rarity: 3,
+  }, {
+    name: 'plain_1',
+    numTile: 1,
+    rarity: 5,
+  }]
+}, {
+  name: 'water',
+  rarity: 5,
+  types: [{
+    name: 'water_4',
+    numTile: 4,
+    rarity: 1,
+  }]
+}]
+
+// must be in 1 tile
+landDefault = {
+  name: 'plain_1',
+  numTile: 1,
+  rarity: 5,
+}
 
 const genObjFromBinarySearchRarity = (sortedRarityArray, objArray) => {
   //  Intial value
@@ -516,43 +607,68 @@ const createRaritySortedObjTypeArray = (objArray) => {
   return rarityArray
 }
 
-const calculateNumTile = (objArray) => {
-  const pixelPerTile = 64
-  for (let i = 0; i < objArray.length; i += 1) {
+// const calculateNumTile = (objArray) => {
+//   const pixelPerTile = 64
+//   for (let i = 0; i < objArray.length; i += 1) {
 
-    for (let j = 0; j < objArray[i].types.length; j += 1) {
-      console.log('j: '+j)
-      console.log('objArray[i].types.length: '+objArray[i].types.length)
-      console.log(objArray[i].types[j].width * objArray[i].types[j].scale)
-      const numbOfTile = Math.ceil((objArray[i].types[j].width * objArray[i].types[j].scale) / pixelPerTile)
-      objArray[i].types[j].numTile = numbOfTile
-    }
-  }
-  return objArray
-}
-const genRandomObj = (numberOfTile) => {
+//     for (let j = 0; j < objArray[i].types.length; j += 1) {
+//       // console.log('j: '+j)
+//       // console.log('objArray[i].types.length: '+objArray[i].types.length)
+//       // console.log(objArray[i].types[j].width * objArray[i].types[j].scale)
+//       const numbOfTile = Math.ceil((objArray[i].types[j].width * objArray[i].types[j].scale) / pixelPerTile)
+//       objArray[i].types[j].numTile = numbOfTile
+//     }
+//   }
+//   return objArray
+// }
+const genRandomObj = (numberOfTile, objInMapArray, ranObjTypeDefault) => {
   const ranObjArray = []
   //  Calculate and add property of numtile for every object
   //let objMapArray = objInMapArray
-  const objMapArray = calculateNumTile(objInMapArray)
-  console.log(objMapArray)
+
+  // no need anymore -> add numtile in obj by default
+  // const objMapArray = calculateNumTile(objInMapArray)
+
+  objMapArray = objInMapArray
+  // console.log(objMapArray)
   //  Create Rarity Sorted Array for every object   | output: [6,11,15,18,20,21]
   const raritySortedObjArray = createRaritySortedArray(objMapArray)
+  // console.log(raritySortedObjArray)
   //  Create Rarity Sorted Array for type of object | output: [{name: grass, types: [1,2]}, {}, ...]
   const raritySortedObjTypeArray = createRaritySortedObjTypeArray(objMapArray)
-
-  let ranObjType = ''
+  // console.log(raritySortedObjTypeArray)
+  let ranObjType = {}
   //  Random objects from number of total tiles
   for (let currOfTile = 0; currOfTile <= numberOfTile; currOfTile += ranObjType.numTile) {
     //  Generate Randomed Object
     const ranObj = genObjFromBinarySearchRarity(raritySortedObjArray, objMapArray)
     //  Find obj that match to obj 'name' from rarity sorted object type array
     const ranObjWithRarityArray = _.find(raritySortedObjTypeArray, { 'name': ranObj.name })
+    // console.log(ranObjWithRarityArray)
     //  Generate Randomed Type Object
     ranObjType = genObjFromBinarySearchRarity(ranObjWithRarityArray.types, ranObj.types)
     //  Add result object into array
-    ranObjArray.push(ranObjType)
+    // ranObjArray.push(ranObjType)
+    // const test = ranObjArray.sort((a, b) => {
+    //   console.log(a)
+    //   return b.rarity - a.rarity
+    // })
+    // console.log(test)
+    if (currOfTile + ranObjType.numTile > numberOfTile ) {
+      console.log('skip')
+      // if(currOfTile)
+      if(currOfTile < numberOfTile) {
+        console.log('add default')
+        ranObjType = ranObjTypeDefault
+        ranObjArray.push(ranObjTypeDefault)
+      }
+    } else {
+      ranObjArray.push(ranObjType)
+    }
   }
+  console.log(ranObjArray)
+  const sumTile = ranObjArray.reduce((a, b) => ({ numTile: a.numTile + b.numTile }))
+  console.log(sumTile)
   return ranObjArray
 }
 
@@ -603,15 +719,25 @@ const randomPositionObjOnMap = (randomObjTypeArray, numArea, numTilePerArea, max
 
 const generateObj = () => {
   //  initial number of area and tiles per one are
-  const numArea = 1 // 10
-  const numTilePerArea = 40 // 24
+  const numArea = 3 // 10
+  const numTilePerArea = 48 // 24
   const maxTilePerArea = 48
+
+  const landPerMap = []
   //  random obj
-  const randomObjTypeArray = genRandomObj(numArea * numTilePerArea)
-  //  random positio in map
-  const objectOnMap = randomPositionObjOnMap(randomObjTypeArray, numArea, numTilePerArea, maxTilePerArea)
+  for( let i = 0; i < numArea; i += 1) {
+    const randomObjTypeArray = genRandomObj(numTilePerArea, land, landDefault)
+    landPerMap.push(randomObjTypeArray)
+  }
+  console.log(landPerMap)
+  // console.log(randomObjTypeArray)
+  //  random position in map
+  // const objectOnMap = randomPositionObjOnMap(randomObjTypeArray, numArea, numTilePerArea, maxTilePerArea)
   //{"name":"tree3","rarity":6,"numTile":5,"color":"#1E0ECF","pos":0}
-  return objectOnMap
+  // return objectOnMap
+  return landPerMap
 }
+
+generateObj()
 
 module.exports = generateObj

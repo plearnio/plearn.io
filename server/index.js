@@ -55,12 +55,18 @@ app.use(passport.initialize())
 app.use(passport.session())
 app.use(flash())
 
-// app.get('/generateWorld/:id/', (req, res) => {
-//   if (parseInt(req.params.id, 10) === 1) {
-//     const numRandom = (random())
-//     res.json(numRandom)
-//   } else res.send('Access denied')
-// })
+app.get('/generateWorld/:id/', (req, res) => {
+  if (parseInt(req.params.id, 10) === 1) {
+    const worldRandom = (random())
+    res.json(worldRandom)
+  } else res.send('Access denied')
+})
+
+app.get('/randomtest', (req, res) => {
+  const worldRandom = (random())
+  res.json(worldRandom)
+})
+
 require('./routes/authen.js')(app, passport)
 
 app.listen(PORT, () => {

@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import io from 'socket.io-client'
 import Cookies from 'js-cookie'
 import os from 'os'
+import axios from 'axios'
 
 // classes 
 import ScalingWindow from '../../classes/ScalingWindow'
@@ -183,15 +184,15 @@ const initialData = () => {
     Scaling.marginLeft = (Scaling.windowWidth - (2 * Scaling.windowHeight)) / 2
     Scaling.windowWidth = Scaling.windowHeight * 2
     Scaling.factor = Scaling.windowHeight / 1080
-    Scaling.tileSize = (1080 / 12) * (Scaling.windowHeight / 1080)
+    Scaling.tileSize = (1080 / 10) * (Scaling.windowHeight / 1080)
   } else if (Scaling.windowHeight > Scaling.windowWidth) {
     Scaling.marginTop = (Scaling.windowHeight - Scaling.windowWidth) / 2
     Scaling.windowHeight = Scaling.windowWidth
     Scaling.factor = Scaling.windowWidth / 1080
-    Scaling.tileSize = (1080 / 12) * (Scaling.windowWidth / 1080)
+    Scaling.tileSize = (1080 / 10) * (Scaling.windowWidth / 1080)
   } else {
     Scaling.factor = Scaling.windowHeight / 1080
-    Scaling.tileSize = (1080 / 12) * (Scaling.windowHeight / 1080)
+    Scaling.tileSize = (1080 / 10) * (Scaling.windowHeight / 1080)
   }
 }
 
@@ -295,7 +296,7 @@ const socketEvent = () => {
     .forEach((index) => {
       playerData.allPlayer[index].sprite.height = Scaling.tileSize * 1
       playerData.allPlayer[index].sprite.width = Scaling.tileSize * 1
-      playerData.allPlayer[index].sprite.y = Scaling.tileSize * (12 - 1)
+      playerData.allPlayer[index].sprite.y = Scaling.tileSize * (10 - 1)
       if (data.playerListNow[index].side === 'left') playerData.allPlayer[index].sprite.scale.x = -5.5 * Scaling.factor
       else playerData.allPlayer[index].sprite.scale.x = 5.5 * Scaling.factor
       if (playerData.allPlayer[index].textureStatus !== data.playerListNow[index].status) {
@@ -349,7 +350,7 @@ class Playground extends Component {
     })
 
     const assetsLoaded = () => {
-      for (let i = 0; i < 12; i += 1) {
+      for (let i = 0; i < 10; i += 1) {
         allObject.push(PIXI.Sprite.fromImage('http://localhost:4000/game/getObject/1/grass1'))
         allObject[i].interactive = true
         allObject[i].buttonMode = true
@@ -366,15 +367,56 @@ class Playground extends Component {
         })
       }
       const allLand = []
-      for (let i = 0; i < 48; i += 1) {
-        allLand.push(PIXI.Sprite.fromImage('http://localhost:4000/game/getObject/1/distland'))
-        allLand[i].interactive = true
-        allLand[i].buttonMode = true
-        graphicContainer.addChild(allLand[i])
-        allLand[i].on('pointerup', () => {
-          console.log(allLand[i].x)
-        })
-      }
+      const graphicLand = []
+      let dataWorldTest = null
+      axios.get('http://localhost:4000/randomtest').then((data) => {
+        console.log(data)
+        for (let i = 0; i < 48; i += 1) {
+          allLand[i] = PIXI.Sprite.fromImage(`http://localhost:4000/game/getLand/1/plain_1}`)
+          allLand[i].interactive = true
+          allLand[i].buttonMode = true
+          graphicContainer.addChild(allLand[i])
+          allLand[i].on('pointerup', () => {
+            console.log(allLand[i].x)
+          })
+          allLand[i].y = Scaling.tileSize * 9
+          allLand[i].x = Scaling.tileSize * i
+          allLand[i].height = Scaling.tileSize
+          allLand[i].width = Scaling.tileSize
+        }
+        let pos = 0
+        dataWorldTest = data.data[0]
+        for (let i = 0; i < data.data[0].length; i += 1) {
+          graphicLand[i] = PIXI.Sprite.fromImage(`http://localhost:4000/game/getLand/1/${data.data[0][i].name}`)
+          // graphicLand[i].interactive = true
+          // graphicLand[i].buttonMode = true
+          graphicContainer.addChild(graphicLand[i])
+          // graphicLand[i].on('pointerup', () => {
+          //   console.log(graphicLand[i].x)
+          // })
+          graphicLand[i].y = Scaling.tileSize * 9
+          graphicLand[i].x = Scaling.tileSize * pos
+          graphicLand[i].height = Scaling.tileSize
+          graphicLand[i].width = Scaling.tileSize * data.data[0][i].numTile
+          pos += data.data[0][i].numTile
+        }
+        pos = 0
+        // for (let i = 0; i < 48; i += 1) {
+        //   allLand[i].y = Scaling.tileSize * 11
+        //   allLand[i].x = Scaling.tileSize * i
+        //   allLand[i].height = Scaling.tileSize
+        //   allLand[i].width = Scaling.tileSize
+        // }
+      })
+      // for (let i = 0; i < 48; i += 1) {
+      //   allLand.push(PIXI.Sprite.fromImage('http://localhost:4000/game/getObject/1/distland'))
+      //   allLand[i].interactive = true
+      //   allLand[i].buttonMode = true
+      //   graphicContainer.addChild(allLand[i])
+      //   allLand[i].on('pointerup', () => {
+      //     console.log(allLand[i].x)
+      //   })
+      // }
 
       // loop
       const mousePosition = getMousePosition()
@@ -382,19 +424,29 @@ class Playground extends Component {
         const start = performance.now()
         if (document.getElementById('mainCanvas')) Scaling.scalingApp('mainCanvas')
 
-        for (let i = 0; i < 12; i += 1) {
-          allObject[i].y = Scaling.tileSize * 10
+        for (let i = 0; i < 10; i += 1) {
+          allObject[i].y = Scaling.tileSize * 8
           allObject[i].x = Scaling.tileSize * i
           allObject[i].height = Scaling.tileSize
           allObject[i].width = Scaling.tileSize
         }
-        for (let i = 0; i < 48; i += 1) {
-          allLand[i].y = Scaling.tileSize * 11
-          allLand[i].x = Scaling.tileSize * i
-          allLand[i].height = Scaling.tileSize
-          allLand[i].width = Scaling.tileSize
+        let pos = 0
+        if (dataWorldTest) {
+          for (let i = 0; i < 48; i += 1) {
+            allLand[i].y = Scaling.tileSize * 9
+            allLand[i].x = Scaling.tileSize * i
+            allLand[i].height = Scaling.tileSize
+            allLand[i].width = Scaling.tileSize
+          }
+          for (let i = 0; i < dataWorldTest.length; i += 1) {
+            graphicLand[i].y = Scaling.tileSize * 9
+            graphicLand[i].x = Scaling.tileSize * pos
+            graphicLand[i].height = Scaling.tileSize
+            graphicLand[i].width = Scaling.tileSize * dataWorldTest[i].numTile
+            pos += dataWorldTest[i].numTile
+          }
         }
-
+        pos = 0
         app.renderer.resize(Scaling.windowWidth, Scaling.windowHeight);
         GameElement.updateScaling(Scaling)
         if ((Object.keys(PointerObject.objectData).length !== 0)) PointerObject.updateScaling(Scaling)
