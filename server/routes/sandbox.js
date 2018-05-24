@@ -24,9 +24,7 @@ sandbox.use(express.static(path.join(__dirname, '../../public')))
 
 sandbox.route('/users')
   .get((req, res, next) => {
-    console.log(req.headers.authorization, TokenUserList, Userlist)
     const checkToken = TokenUserList.findIndex(element => element === req.headers.authorization)
-    console.log(checkToken)
     if (checkToken === -1) {
       res.send({ error: 'unauthentcation' })
     } else { next() }
@@ -95,75 +93,77 @@ sandbox.route('/users/:id')
   })
 
 sandbox.route('/userByToken')
-  .get((req, res, next) => {
+  .get((req, res) => {
+    console.log('user by token')
     console.log(req.headers.authorization, TokenUserList)
-    const checkToken = TokenUserList.findIndex(element => element === req.headers.authorization)
-    if (checkToken === -1) {
-      res.send({ error: 'no permission' })
-    } else {
-      req.tokenIndex = checkToken
-      next()
-    }
-  }, (req, res) => {
-    console.log(`user's token is at ${req.tokenIndex}`)
-    res.send(Userlist[req.tokenIndex])
+    User.findOne({ _token: req.headers.authorization }).then((userByToken) => {
+      if (userByToken) {
+        res.send(userByToken)
+      } else {
+        res.send({ error: 'no permission' })
+      }
+    }).catch((err) => {
+      res.send({ error: 'something wrong' })
+    })
+    // const checkToken = TokenUserList.findIndex(element => element === req.headers.authorization)
+    // if (checkToken === -1) {
+    //   res.send({ error: 'no permission' })
+    // } else {
+    //   req.tokenIndex = checkToken
+    //   next()
+    // }
   })
 
 sandbox.route('/logout')
   .get((req, res, next) => {
     console.log(req.headers.authorization, TokenUserList)
-    const checkToken = TokenUserList.findIndex(element => element === req.headers.authorization)
-    if (checkToken === -1) {
-      res.send({ error: 'no permission' })
-    } else {
-      req.tokenIndex = checkToken
-      next()
-    }
+    User.findOne({ _token: req.headers.authorization }).then((userByToken) => {
+      if (userByToken) {
+        userByToken._token = null
+        userByToken.save().then((userSaved) => {
+          next()
+        })
+      } else {
+        res.send({ error: 'no permission' })
+      }
+    }).catch((err) => {
+      res.send({ error: 'something wrong' })
+    })
   }, (req, res) => {
-    Userlist.splice(req.tokenIndex, 1)
-    TokenUserList.splice(req.tokenIndex, 1)
     res.send({ status: 'complete' })
   })
 
 sandbox.route('/login')
   .post((req, res) => {
-    User.findOne({ username: req.body.username, password: req.body.password }, (err, docs) => {
+    User.findOne({ username: req.body.username, password: req.body.password }, (err, userLogIn) => {
       if (err) res.send('error')
-      if (!docs) res.send('wrong user or password')
+      if (!userLogIn) res.send('wrong user or password')
       else {
         let indexToken
         let timeOut = 0
         const timeNow = Date.now()
-        const tokenKey = docs.username + docs.password + timeNow
+        const tokenKey = userLogIn.username + userLogIn.password + timeNow
         let shuffledTokenKey = md5(tokenKey.split('').sort(() => 0.5 - Math.random()).join(''))
         console.log(shuffledTokenKey)
-        do {
-          indexToken = TokenUserList.findIndex((token) => {
-            return token === tokenKey
+        const checkDupToken = () => {
+          return User.findOne({ _token: shuffledTokenKey }).then((token) => {
+            if (!token) {
+              userLogIn._token = shuffledTokenKey
+              return userLogIn.save().then((userSaved) => {
+                return userSaved
+              })
+            } else {
+              console.log('duplicate')
+              shuffledTokenKey = md5(tokenKey.split('').sort(() => { return 0.5-Math.random()}).join(''))
+              return checkDupToken()
+            }
           })
-          if (indexToken !== -1) {
-            console.log('duplicate')
-            shuffledTokenKey = md5(tokenKey.split('').sort(() => { return 0.5-Math.random()}).join(''))
-          }
-          timeOut += 1
-          if (timeOut >= 100) {
-            res.send({ error: 'time out' })
-            break
-          }
-        } while (indexToken !== -1)
-        const index = Userlist.findIndex((element) => {
-          return element.username === docs.username
-        })
-        console.log(index)
-        if (index !== -1) {
-          Userlist.splice(index, 1)
-          TokenUserList.splice(index, 1)
         }
-        Userlist.push(docs)
-        TokenUserList.push(shuffledTokenKey)
-        res.send({
-          user: docs,
-          __token: shuffledTokenKey
+        checkDupToken().then((result) => {
+          console.log(result)
+          res.send({
+            user: result
+          })
         })
       }
     })

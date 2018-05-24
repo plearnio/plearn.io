@@ -13,6 +13,13 @@ import Playground from './components/pages/Playground'
 
 // classes
 import ScalingWindow from './classes/ScalingWindow'
+// assets
+import menuMain from './assets/menu_main.png'
+import menuBag from './assets/menu_bag.png'
+import menuQuest from './assets/menu_quest.png'
+import menuBook from './assets/menu_book.png'
+import menuChat from './assets/menu_chat.png'
+import menuHide from './assets/menu_hide.png'
 
 const Scaling = new ScalingWindow()
 Scaling.scalingApp('main')
@@ -26,7 +33,7 @@ const MenuButton = styled.button`
   border-bottom-left-radius: 2vw;
   width: 5vw;
   color: white;
-  background-color:#303843
+  background-color:#303843;
   min-width: 40px;
   height: 10vh;
   padding: 1vh;
@@ -38,14 +45,22 @@ const HideMenuButton = styled(MenuButton)`
   top: 0px;
   height: 5vh;
   font-size: 1vh;
+  background-image: url(${menuHide});
+  background-repeat: no-repeat;
+  background-size: 70%;
+  background-position: center;
 `
 
 const MainMenuButton = styled(MenuButton)`
   top: 5vh;
   ${props => props.menuSelected && css`
     border-right-style: none;
-    background-color:#282828;
+    background-color: #282828;
   `};
+  background-image: url(${menuMain});
+  background-repeat: no-repeat;
+  background-size: 70%;
+  background-position: center; 
 `
 
 const BagMenuButton = styled(MenuButton)`
@@ -54,6 +69,10 @@ const BagMenuButton = styled(MenuButton)`
     border-right-style: none;
     background-color:#282828;
   `};
+  background-image: url(${menuBag});
+  background-repeat: no-repeat;
+  background-size: 70%;
+  background-position: center; 
 `
 
 const QuestMenuButton = styled(MenuButton)`
@@ -62,6 +81,10 @@ const QuestMenuButton = styled(MenuButton)`
     border-right-style: none;
     background-color:#282828;
   `};
+  background-image: url(${menuQuest});
+  background-repeat: no-repeat;
+  background-size: 70%;
+  background-position: center; 
 `
 
 const BookMenuButton = styled(MenuButton)`
@@ -70,6 +93,10 @@ const BookMenuButton = styled(MenuButton)`
     border-right-style: none;
     background-color:#282828;
   `};
+  background-image: url(${menuBook});
+  background-repeat: no-repeat;
+  background-size: 70%;
+  background-position: center; 
 `
 
 const ChatMenuButton = styled(MenuButton)`
@@ -78,8 +105,13 @@ const ChatMenuButton = styled(MenuButton)`
     border-right-style: none;
     background-color:#282828;
   `};
+  background-image: url(${menuChat});
+  background-repeat: no-repeat;
+  background-size: 70%;
+  background-position: center;
 `
 const MenuPanel = styled.div`
+  color: #282828;
   border-top-left-radius: 2vw;
   border-bottom-left-radius: 2vw;
   right: 0;
@@ -94,10 +126,11 @@ const MenuPanel = styled.div`
   overflow: hidden;
   z-index: 20;
   -webkit-transition: ease-in 0.5s; /* For Safari 3.1 to 6.0 */
-  transition: height width ease-in .5s;
+  transition: height color width ease-in .5s;
   
   ${props => props.show && css`
     width: 500px;
+    color: white;
   `};
 
   ${props => props.hideAll && css`
@@ -111,7 +144,6 @@ const MenuData = styled.div`
   position: absolute;
   width: 100%;
   height: 100%;
-  color: white;
   background-color: #282828;
 `
 
@@ -133,6 +165,7 @@ class App extends Component {
     this.state = {
       key: 1,
       login: false,
+      userData: this.props.userData,
       showMenu: false,
       hideAll: false,
       menuSelect: [false, false, false, false, false, false],
@@ -225,25 +258,16 @@ class App extends Component {
           show={this.state.showMenu}
           hideAll={this.state.hideAll}
           factor={Scaling.factor}
+          style={{ marginTop: '50px'}}
         >
           <HideMenuButton onClick={() => this.handleMenu()}>
             Hide
           </HideMenuButton>
-          <MainMenuButton menuSelected={this.state.menuSelect[0]} onClick={() => this.selectMenu(0)}>
-            Main
-          </MainMenuButton>
-          <BagMenuButton menuSelected={this.state.menuSelect[1]} onClick={() => this.selectMenu(1)}>
-            Bag
-          </BagMenuButton>
-          <QuestMenuButton menuSelected={this.state.menuSelect[2]} onClick={() => this.selectMenu(2)}>
-            Quests
-          </QuestMenuButton>
-          <BookMenuButton menuSelected={this.state.menuSelect[3]} onClick={() => this.selectMenu(3)}>
-            Books
-          </BookMenuButton>
-          <ChatMenuButton menuSelected={this.state.menuSelect[4]} onClick={() => this.selectMenu(4)}>
-            Chat
-          </ChatMenuButton>
+          <MainMenuButton menuSelected={this.state.menuSelect[0]} onClick={() => this.selectMenu(0)} />
+          <BagMenuButton menuSelected={this.state.menuSelect[1]} onClick={() => this.selectMenu(1)} />
+          <QuestMenuButton menuSelected={this.state.menuSelect[2]} onClick={() => this.selectMenu(2)} />
+          <BookMenuButton menuSelected={this.state.menuSelect[3]} onClick={() => this.selectMenu(3)} />
+          <ChatMenuButton menuSelected={this.state.menuSelect[4]} onClick={() => this.selectMenu(4)} />
           <MenuData>
             {this.state.menuSelect[0] && (
               <div>
@@ -281,7 +305,7 @@ class App extends Component {
             
           </MenuData>
         </MenuPanel>
-        <Playground showObjectData={(data) => { this.setMainMenu(data) }} />
+        <Playground userData={this.props.userData} showObjectData={(data) => { this.setMainMenu(data) }} />
       </PanelPlayground>
     )
   }

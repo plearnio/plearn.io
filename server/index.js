@@ -15,7 +15,6 @@ const session = require('express-session')
 const configDB = require('./config/database.js').mongo
 const random = require('./random')
 
-console.log(random())
 const PORT = 4000
 
 // mongoose.connect(configDB.url)
@@ -23,6 +22,11 @@ mongoose.connect(`mongodb://${configDB.host}:${configDB.port}/${configDB.databas
   if (err) console.log(err)
   else console.log('connect success')
 })
+
+const Map = require('./models/Map')
+const ObjectsInArea = require('./models/ObjectsInArea')
+const User = require('./models/User')
+const AreaInMap = require('./models/AreaInMap')
 
 require('./config/passport')(passport)
 
@@ -62,10 +66,81 @@ app.get('/generateWorld/:id/', (req, res) => {
   } else res.send('Access denied')
 })
 
+// app.get('/randomtest', (req, res) => {
+//   const worldRandom = (random())
+//   res.json(worldRandom)
+// })
+
 app.get('/randomtest', (req, res) => {
-  const worldRandom = (random())
-  res.json(worldRandom)
+  Map.aggregate([
+    { $unwind: '$area' },
+    { $unwind: '$area.objectsInMap' }, {
+      $lookup: {
+        from: 'sub_objects',
+        localField: 'area.objectsInMap.objectId',
+        foreignField: 'id',
+        as: 'area.objectsInMap.objectDetail'
+      }
+    }, {
+      $project: {
+        _id: 1,
+        biome: 1,
+        name: 1,
+        size: 1,
+        mainArea: 1,
+        'area.objectsInMap.x': 1,
+        'area.objectsInMap.objectDetail': { $arrayElemAt: ['$area.objectsInMap.objectDetail', 0] } 
+    }}, {
+      $group: {
+        _id: '$_id',
+        biome: { $first: '$biome' },
+        name: { $first: '$name' },
+        size: { $first: '$size' },
+        mainArea: { $first: '$mainArea' },
+        objectsInMap: { $push: '$area.objectsInMap' }
+      }
+    }
+  ]).then((data) => {
+    console.log(data)
+    res.json(data)
+  })
+  // const worldRandom = (random())
+  // res.json(worldRandom)
 })
+
+app.get('/getMapData', (req, res, next) => {
+  console.log('get map data')
+  console.log(req.headers.authorization)
+  User.findOne({ _token: req.headers.authorization }).then((userByToken) => {
+    if (userByToken) {
+      req.headers.mapArea = userByToken.pos.mapArea
+      next()
+    } else {
+      res.send({ error: 'no permission' })
+    }
+  }).catch((err) => {
+    res.send({ error: 'something wrong' })
+  })
+}, (req, res) => {
+  console.log('check area map')
+  console.log(req.headers.mapArea)
+  ObjectsInArea.aggregate([
+      { $match: { areaId: mongoose.Types.ObjectId(req.headers.mapArea) } }, {
+      $lookup: {
+        from: 'subobjects',
+        localField: 'objectId',
+        foreignField: 'id',
+        as: 'objectDetail'
+      }
+    }
+  ]).then((data) => {
+    console.log(data)
+    res.json(data)
+  })
+  // const worldRandom = (random())
+  // res.json(worldRandom)
+})
+
 
 require('./routes/authen.js')(app, passport)
 

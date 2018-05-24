@@ -3,14 +3,24 @@ const PIXI = require('pixi.js')
 class Background {
   constructor(name, url, windowH, windowW, layers) {
     const Element = []
-    for (let i = 7; i >= 1; i -= 1) {
-      const texture = PIXI.Texture.fromImage(`http://localhost:4000/game/getBackground/1/${url}/${i}`);
-      const layerBackground = new PIXI.Sprite(texture)
-      layerBackground.interactive = true
-      layerBackground.anchor.set(0, 0)
-      layerBackground.x = 0
-      layerBackground.y = 0
-      Element.push(layerBackground)
+    const allWidth = (180 * 96)
+    let nowWidth = 0
+    let counter = 0
+    console.log('start_test')
+    while (nowWidth < allWidth && (counter < 10)) {
+      let layerBackground
+      for (let i = layers; i >= 1; i -= 1) {
+        const texture = PIXI.Texture.fromImage(`http://localhost:4000/game/getBackground/1/${url}_${i}`);
+        layerBackground = new PIXI.Sprite(texture)
+        layerBackground.interactive = true
+        layerBackground.anchor.set(0, 0)
+        layerBackground.x = nowWidth
+        layerBackground.y = 0
+        Element.push(layerBackground)
+      }
+      nowWidth += 180 * 24
+      console.log(nowWidth)
+      counter += 1
     }
     this.Element = Element
     this.name = name
@@ -19,10 +29,14 @@ class Background {
   }
 
   parallax(x, factor) {
-    for (let i = 0; i < this.layers; i += 1) {
-      this.Element[i].x = x / ((this.layers - i) * 5)
-      this.Element[i].width = ((1080 / this.Element[i]._texture.baseTexture.realHeight) * this.Element[i]._texture.baseTexture.realWidth) * factor
-      this.Element[i].height = (1080) * factor
+    let num_temp = 0
+    for (let j = 0; j < 4; j += 1) {
+      for (let i = 0; i < this.layers; i += 1) {
+        this.Element[num_temp].x = (x / ((this.layers - i) * 3)) + ((((1080 / this.Element[num_temp]._texture.baseTexture.realHeight) * this.Element[num_temp]._texture.baseTexture.realWidth) * factor) * j)
+        this.Element[num_temp].width = ((1080 / this.Element[num_temp]._texture.baseTexture.realHeight) * this.Element[num_temp]._texture.baseTexture.realWidth) * factor
+        this.Element[num_temp].height = (1080) * factor
+        num_temp += 1
+      }
     }
   }
 }

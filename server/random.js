@@ -498,43 +498,142 @@ const land = [{
   name: 'plain',
   rarity: 1,
   types: [{
-    name: 'plain_8',
+    name: 'plain_1_8',
     numTile: 8,
     rarity: 2,
   }, {
-    name: 'plain_5',
-    numTile: 5,
-    rarity: 1,
-  }, {
-    name: 'plain_3',
+    name: 'plain_1_3',
     numTile: 3,
     rarity: 1,
   }, {
-    name: 'plain_2',
+    name: 'plain_1_2',
     numTile: 2,
     rarity: 3,
   }, {
-    name: 'plain_1',
+    name: 'plain_1_1',
     numTile: 1,
     rarity: 5,
   }]
 }, {
   name: 'water',
-  rarity: 5,
+  rarity: 4,
   types: [{
-    name: 'water_4',
+    name: 'water_1_4',
     numTile: 4,
     rarity: 1,
+  }, {
+    name: 'water_1_2',
+    numTile: 2,
+    rarity: 3,
+  }]
+}, {
+  name: 'plow',
+  rarity: 3,
+  types: [{
+    name: 'plowed_1_4',
+    numTile: 4,
+    rarity: 1,
+  }, {
+    name: 'plowed_1_2',
+    numTile: 2,
+    rarity: 1,
+  }, {
+    name: 'plowed_1_1',
+    numTile: 1,
+    rarity: 2,
+  }]
+}]
+
+
+const objGame_1 = [{
+  name: 'tree',
+  rarity: 5,
+  types: [{
+    name: 'tree_1',
+    numTile: 3,
+    numTileH: 5,
+    rarity: 1
+  }, {
+    name: 'tree_2',
+    numTile: 3,
+    numTileH: 4,
+    rarity: 1
+  }]
+}, {
+  name: 'empty',
+  rarity: 1,
+  types: [{
+    name: 'empty',
+    numTile: 1,
+    rarity: 5
+  }]
+}]
+
+const objGame_2 = [{
+  name: 'rock',
+  rarity: 5,
+  types: [{
+    name: 'rock_1',
+    numTile: 2,
+    numTileH: 1,
+    rarity: 1
+  }, {
+    name: 'rock_2',
+    numTile: 2,
+    numTileH: 1,
+    rarity: 1
+  }]
+}, {
+  name: 'log',
+  rarity: 5,
+  types: [{
+    name: 'log_1',
+    numTile: 1,
+    numTileH: 1,
+    rarity: 1
+  }, {
+    name: 'log_2',
+    numTile: 2,
+    numTileH: 1,
+    rarity: 1
+  }]
+}, {
+  name: 'grass',
+  rarity: 5,
+  types: [{
+    name: 'grass_1',
+    numTile: 1,
+    numTileH: 1,
+    rarity: 1
+  }]
+}, {
+  name: 'empty',
+  rarity: 1,
+  types: [{
+    name: 'empty',
+    numTile: 1,
+    rarity: 5
   }]
 }]
 
 // must be in 1 tile
 landDefault = {
-  name: 'plain_1',
+  name: 'plain_1_1',
   numTile: 1,
-  rarity: 5,
+  rarity: 5
 }
 
+objectEmpty_1 = {
+  name: 'empty',
+  numTile: 1,
+  rarity: 0
+}
+
+objectEmpty_2 = {
+  name: 'empty',
+  numTile: 1,
+  rarity: 0
+}
 const genObjFromBinarySearchRarity = (sortedRarityArray, objArray) => {
   //  Intial value
   let randomObj = 0
@@ -649,21 +748,16 @@ const genRandomObj = (numberOfTile, objInMapArray, ranObjTypeDefault) => {
     ranObjType = genObjFromBinarySearchRarity(ranObjWithRarityArray.types, ranObj.types)
     //  Add result object into array
     // ranObjArray.push(ranObjType)
-    // const test = ranObjArray.sort((a, b) => {
-    //   console.log(a)
-    //   return b.rarity - a.rarity
-    // })
-    // console.log(test)
     if (currOfTile + ranObjType.numTile > numberOfTile ) {
-      console.log('skip')
-      // if(currOfTile)
       if(currOfTile < numberOfTile) {
         console.log('add default')
+        const dummyObj = Object.assign({ x: currOfTile }, ranObjTypeDefault)
         ranObjType = ranObjTypeDefault
-        ranObjArray.push(ranObjTypeDefault)
+        ranObjArray.push(dummyObj)
       }
     } else {
-      ranObjArray.push(ranObjType)
+      const dummyObj = Object.assign({ x: currOfTile }, ranObjType)
+      ranObjArray.push(dummyObj)
     }
   }
   console.log(ranObjArray)
@@ -709,7 +803,7 @@ const randomPositionObjOnMap = (randomObjTypeArray, numArea, numTilePerArea, max
     }
 
     // Remove empty emptyObj
-    newObjArea = _.pullAllBy(newObjArea, [{ 'name': 'emptyObj'}], 'name');
+    newObjArea = _.pullAllBy(newObjArea, [{ 'name': 'emptyObj'}], 'name')
 
     //  add obj to array
     objectMapArray.push(newObjArea)
@@ -723,21 +817,35 @@ const generateObj = () => {
   const numTilePerArea = 48 // 24
   const maxTilePerArea = 48
 
+  const objectPerMap = {
+    layer_1: [],
+    layer_2: []
+  }
   const landPerMap = []
   //  random obj
   for( let i = 0; i < numArea; i += 1) {
-    const randomObjTypeArray = genRandomObj(numTilePerArea, land, landDefault)
-    landPerMap.push(randomObjTypeArray)
+    const randomLandTypeArray = genRandomObj(numTilePerArea, land, landDefault)
+    const randomObjTypeArray_1 = genRandomObj(numTilePerArea, objGame_1, objectEmpty_1)
+    const randomObjTypeArray_2 = genRandomObj(numTilePerArea, objGame_2, objectEmpty_2)
+    newObjArea_1 = _.pullAllBy(randomObjTypeArray_1, [{ 'name': 'empty'}], 'name')
+    newObjArea_2 = _.pullAllBy(randomObjTypeArray_2, [{ 'name': 'empty'}], 'name')
+    landPerMap.push(randomLandTypeArray)
+    objectPerMap.layer_1.push(newObjArea_1)
+    objectPerMap.layer_2.push(newObjArea_2)
   }
   console.log(landPerMap)
-  // console.log(randomObjTypeArray)
+  console.log(objectPerMap)
+  const worldData = {
+    lands: landPerMap,
+    objects: objectPerMap
+  }
   //  random position in map
   // const objectOnMap = randomPositionObjOnMap(randomObjTypeArray, numArea, numTilePerArea, maxTilePerArea)
   //{"name":"tree3","rarity":6,"numTile":5,"color":"#1E0ECF","pos":0}
   // return objectOnMap
-  return landPerMap
+  return worldData
 }
 
-generateObj()
+// generateObj()
 
 module.exports = generateObj

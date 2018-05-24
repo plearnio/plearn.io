@@ -17,9 +17,10 @@ import {
 import configSandbox from '../../config/sandbox'
 
 const TopNavbar = styled(Navbar)`
-  position: absolute;
+  position: fixed;
   width: 100%;
   z-index: 100;
+  top: 0px;
 `
 
 const NavbarMenu = withRouter(

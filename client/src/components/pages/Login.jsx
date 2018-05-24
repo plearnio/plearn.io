@@ -68,7 +68,7 @@ class Login extends Component {
 
     userData.then((res) => {
       if (res && res.data !== 'wrong user or password') {
-        Cookies.set('__token', res.data.__token);
+        Cookies.set('__token', res.data.user._token);
         this.props.setUserData({
           user: res.data.user
         })

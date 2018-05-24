@@ -15,7 +15,7 @@ const mapSchema = new Schema({
   area: [{
     subBiome: [{ type: String }], // water source, plain 
     objectsInMap: [{
-      objectId: { type: Schema.Types.ObjectId },
+      objectId: String,
       x: { type: Number, require: true },
       y: { type: Number, require: true },
       itemInSlot: Schema.Types.Mixed,

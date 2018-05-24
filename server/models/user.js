@@ -5,7 +5,8 @@ mongoose.Promise = require('bluebird')
 const Schema = mongoose.Schema
 
 const userSchema = new Schema({
-  username: { type: String },
+  username: String,
+  password: String,
   local: {
     email: String,
     password: String
@@ -30,9 +31,11 @@ const userSchema = new Schema({
   pos: {
     map: { type: Schema.Types.ObjectId },
     mapIndex: Number,
+    mapArea: { type: Schema.Types.ObjectId },
     x: Number,
     y: Number
-  }
+  },
+  _token: String
 })
 
 // generating a hash

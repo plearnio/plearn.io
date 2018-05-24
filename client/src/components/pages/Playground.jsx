@@ -4,11 +4,12 @@ import Cookies from 'js-cookie'
 import os from 'os'
 import axios from 'axios'
 
-// classes 
+// classes
 import ScalingWindow from '../../classes/ScalingWindow'
 // assets
-import imageStatusBar from '../../assets/status-bar-2.png'
+import imageStatusBar from '../../assets/status_bar.png'
 import buttonAction from '../../assets/button-interact.png'
+import hourHand from '../../assets/hour_hand.png'
 
 import Player from '../../classes/Player'
 import Background from '../../classes/Background'
@@ -18,7 +19,7 @@ const display = require('pixi-layers')
 
 const socket = io('http://localhost:4444', {
   query: {
-    __token: Cookies.get('__token')
+    _token: Cookies.get('__token')
   }
 })
 
@@ -33,7 +34,8 @@ app.renderer.autoResize = true
 app.renderer.backgroundColor = 0xffffff
 const cover = new PIXI.Sprite(PIXI.Texture.WHITE);
 // const backgroundClass = new PIXI.Sprite(PIXI.Texture.WHITE);
-const background = new Background('background', 'forest', app.renderer.height, app.renderer.width, 7)
+const biomeBg = 'bg_1'
+const background = new Background('background', biomeBg, app.renderer.height, app.renderer.width, 7)
 const blurFilter = new PIXI.filters.BlurFilter()
 const graphicContainer = new PIXI.Container()
 const backgroundContainer = new PIXI.Container()
@@ -41,6 +43,7 @@ const otherPlayerContainer = new PIXI.Container()
 const mainPlayerContainer = new PIXI.Container()
 const objectContainer = new PIXI.Container()
 const frontContainer = new PIXI.Container()
+const landfrontContainer = new PIXI.Container()
 
 const playerData = {
   thisPlayer: {},
@@ -50,6 +53,8 @@ const playerData = {
 let worldDataSocket = {}
 
 const allObject = []
+
+const dataObjLayers = [[], [], []]
 
 let layoutContainer
 
@@ -62,6 +67,7 @@ const setScaling = ({ element, x, y, factor, scale }) => {
 class GameElementData {
   constructor() {
     this.statusBar = PIXI.Sprite.fromImage(imageStatusBar)
+    this.hourHand = PIXI.Sprite.fromImage(hourHand)
     this.timeText = new PIXI.Text('00:00')
     this.health = new PIXI.Text('health: 100')
     this.energy = new PIXI.Text('energy: 100')
@@ -71,13 +77,58 @@ class GameElementData {
   initialData() {
     this.timeText.x = 30
     this.timeText.y = 200
-    frontContainer.addChild(this.timeText)
-    frontContainer.addChild(this.health)
-    frontContainer.addChild(this.energy)
-    frontContainer.addChild(this.hunger)
-    // frontContainer.addChild(this.statusBar)
+    const healthBar = new PIXI.Graphics();
+    healthBar.beginFill(0xd2715e);
+    healthBar.lineStyle(0);
+    healthBar.drawCircle(0, 0, 22);
+    healthBar.endFill();
+    const healthBar_texture = app.renderer.generateTexture(healthBar);
+    this.healthBar = new PIXI.Sprite(healthBar_texture);
+    this.healthBar.x = 91;
+    this.healthBar.y = 178;
+    this.healthBar.anchor.set(0.5, 0.5)
+    const energyBar = new PIXI.Graphics();
+    energyBar.beginFill(0xdbea21);
+    energyBar.lineStyle(0);
+    energyBar.drawCircle(0, 0, 18);
+    energyBar.endFill();
+    const energyBar_texture = app.renderer.generateTexture(energyBar);
+    this.energyBar = new PIXI.Sprite(energyBar_texture);
+    this.energyBar.x = 138;
+    this.energyBar.y = 178;
+    this.energyBar.anchor.set(0.5, 0.5)
+    const hungerBar = new PIXI.Graphics();
+    hungerBar.beginFill(0x377661);
+    hungerBar.lineStyle(0);
+    hungerBar.drawCircle(0, 0, 18);
+    hungerBar.endFill();
+    const hungerBar_texture = app.renderer.generateTexture(hungerBar);
+    this.hungerBar = new PIXI.Sprite(hungerBar_texture);
+    this.hungerBar.x = 184;
+    this.hungerBar.y = 175;
+    this.hungerBar.anchor.set(0.5, 0.5)
+    const expBar = new PIXI.Graphics();
+    expBar.beginFill(0x4a4c59);
+    expBar.lineStyle(0)
+    expBar.drawRect(0, 0, 54, 12)
+    expBar.endFill()
+    const expBar_texture = app.renderer.generateTexture(expBar)
+    this.expBar = new PIXI.Sprite(expBar_texture)
+    this.expBar.x = 135
+    this.expBar.y = 83
+    frontContainer.addChild(this.healthBar)
+    frontContainer.addChild(this.energyBar)
+    frontContainer.addChild(this.hungerBar)
+    frontContainer.addChild(this.expBar)
+    frontContainer.addChild(this.statusBar)
+    frontContainer.addChild(this.hourHand)
+    this.statusBar.y = 50
+    this.statusBar.x = 10
+    this.hourHand.anchor.set(0.5, 0.5)
+    this.hourHand.y = 116
+    this.hourHand.x = 93
   }
-  updateScaling(scaling) {
+  updateScaling(scaling, nowPlayerData) {
     setScaling({
       element: this.timeText, x: 30, y: 50, scale: { x: 1, y: 1 }, factor: scaling.factor
     })
@@ -90,10 +141,19 @@ class GameElementData {
     setScaling({
       element: this.hunger, x: 30, y: 180, scale: { x: 1, y: 1 }, factor: scaling.factor
     })
+    if (scaling.marginTop < 50) {
+      this.statusBar.y = 60
+    } else {
+      this.statusBar.y = 0
+    }
+    this.hungerBar.scale.set((nowPlayerData.detail.gameGeneralStatus.hunger / 100))
+    this.energyBar.scale.set((nowPlayerData.detail.gameGeneralStatus.energy / 100))
+    this.healthBar.scale.set((nowPlayerData.detail.gameGeneralStatus.health / 100))
+    this.expBar.scale.x = nowPlayerData.detail.experience.nowExp / nowPlayerData.detail.experience.maxExp
   }
+
   updateElement(worldData) {
-    const gameMin = (`0${worldData.worldTime.min}`).slice(-2)
-    this.timeText.text = `time ${worldData.worldTime.hour}:${gameMin}`
+    this.hourHand.rotation = (worldData.worldTime.hour * 15) * 0.0174533
   }
 
 }
@@ -154,10 +214,10 @@ const initialData = () => {
   cover.tint = 0xffffff
   cover.visible = false
   cover.alpha = 0.8
-
-  // background.Element.forEach((element) => {
-  //   backgroundContainer.addChild(element)
-  // })
+  console.log(background.Element)
+  background.Element.forEach((element) => {
+    backgroundContainer.addChild(element)
+  })
   background.Element[background.Element.length - 1].interactive = true
   background.Element[background.Element.length - 1].on('pointerup', () => {
     if (Object.keys(PointerObject.objectData).length !== 0) allObject[PointerObject.objectData.id].alpha = 1
@@ -173,6 +233,7 @@ const initialData = () => {
   PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST
   graphicContainer.addChild(backgroundContainer)
   graphicContainer.addChild(objectContainer)
+  graphicContainer.addChild(landfrontContainer)
   app.stage.addChild(graphicContainer)
   app.stage.addChild(otherPlayerContainer)
   app.stage.addChild(mainPlayerContainer)
@@ -209,7 +270,7 @@ const updateNewPlayer = (playerList) => {
       playerData.allPlayer[index].sprite.width = Scaling.tileSize * 1
       playerData.allPlayer[index].sprite.y = Scaling.tileSize * (11 - 1)
       playerData.allPlayer[index].sprite.anchor.x = 0.5
-      if (parseInt(index, 10) === playerData.thisPlayer.id) {
+      if (index === playerData.thisPlayer.id) {
         playerData.allPlayer[index].sprite.x = (Scaling.windowWidth / 2)
         mainPlayerContainer.addChild(playerData.allPlayer[index].sprite)
       } else {
@@ -262,9 +323,6 @@ const socketEvent = () => {
     if (Object.keys(playerData.thisPlayer).length !== 0) {
       mainPlayerContainer.removeChild(playerData.allPlayer[playerData.thisPlayer.id].sprite)
     }
-    if (Object.keys(worldDataSocket).length !== 0) {
-// test
-    }
     playerData.thisPlayer = data.thisPlayer
     // playerData.player = new Player('hero-walk', { x: 1 * TILE, y: BASE * TILE }, 2)
     playerData.player = new Player('hero-walk', { x: 1 * Scaling.tileSize, y: 1 * Scaling.tileSize }, 2)
@@ -296,7 +354,7 @@ const socketEvent = () => {
     .forEach((index) => {
       playerData.allPlayer[index].sprite.height = Scaling.tileSize * 1
       playerData.allPlayer[index].sprite.width = Scaling.tileSize * 1
-      playerData.allPlayer[index].sprite.y = Scaling.tileSize * (10 - 1)
+      playerData.allPlayer[index].sprite.y = Scaling.tileSize * Scaling.baseObjectFloor
       if (data.playerListNow[index].side === 'left') playerData.allPlayer[index].sprite.scale.x = -5.5 * Scaling.factor
       else playerData.allPlayer[index].sprite.scale.x = 5.5 * Scaling.factor
       if (playerData.allPlayer[index].textureStatus !== data.playerListNow[index].status) {
@@ -304,8 +362,8 @@ const socketEvent = () => {
         playerData.allPlayer[index].sprite.gotoAndPlay(0)
         playerData.allPlayer[index].textureStatus = data.playerListNow[index].status
       }
-      if (parseInt(index, 10) === playerData.thisPlayer.id) {
-        // console.log(data.playerListNow[index])
+      if (index === playerData.thisPlayer.id) {
+        Object.assign(playerData.thisPlayer, data.playerListNow[index])
         playerData.allPlayer[index].sprite.x = ((window.innerWidth) / 2) - Scaling.marginLeft
         if (-(data.playerListNow[index].x * Scaling.factor) + playerData.allPlayer[index].sprite.x > 0) {
           graphicContainer.x = 0
@@ -323,11 +381,19 @@ const socketEvent = () => {
     updateDeletePlayer(data.playerListNow)
     GameElement.updateElement(data.worldData)
   })
+
+  socket.on('updateDataArea', (objectsInArea) => { // 500 ms
+    console.log(objectsInArea)
+  })
 }
 
 initialData()
 listenEventFromUser()
 socketEvent()
+
+const TestDiv = (
+  <div style={{ width: '500px', height: '500px', backgroundColor: 'red'}}>ASDASDASDASDASDASDASDAS</div>
+)
 
 class Playground extends Component {
 
@@ -343,7 +409,9 @@ class Playground extends Component {
 
   componentDidMount() {
     // document.body.appendChild(app.renderer.view)
-    document.getElementById('mainCanvas').appendChild(app.renderer.view)
+    if (this.props.userData) {
+      document.getElementById('mainCanvas').appendChild(app.renderer.view)
+    }
     socket.on('getDataObject', (data) => {
       const { showObjectData } = this.props
       showObjectData(data)
@@ -366,41 +434,119 @@ class Playground extends Component {
           if ((Object.keys(PointerObject.objectData).length === 0) || (PointerObject.objectData.id !== i)) allObject[i].alpha = 1
         })
       }
-      const allLand = []
-      const graphicLand = []
-      let dataWorldTest = null
-      axios.get('http://localhost:4000/randomtest').then((data) => {
+      // const allLand = []
+      // const graphicLand = []
+      // const graphicObj_layer_1 = []
+      // const graphicObj_layer_2 = []
+
+      // let dataLandTest = null
+      const authGetMap = {
+        method: 'GET',
+        url: 'http://localhost:4000/getMapData',
+        headers: {
+          Cookie: `__token=${Cookies.get('__token')};`
+        },
+        json: true
+      }
+      console.log('asdassadasdasd')
+      axios({
+        method: 'GET',
+        url: 'http://localhost:4000/getMapData',
+        headers: {
+          Authorization: Cookies.get('__token'),
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        json: true
+      }).then((data) => {
+        console.log('in axio get map data')
         console.log(data)
-        for (let i = 0; i < 48; i += 1) {
-          allLand[i] = PIXI.Sprite.fromImage(`http://localhost:4000/game/getLand/1/plain_1}`)
-          allLand[i].interactive = true
-          allLand[i].buttonMode = true
-          graphicContainer.addChild(allLand[i])
-          allLand[i].on('pointerup', () => {
-            console.log(allLand[i].x)
-          })
-          allLand[i].y = Scaling.tileSize * 9
-          allLand[i].x = Scaling.tileSize * i
-          allLand[i].height = Scaling.tileSize
-          allLand[i].width = Scaling.tileSize
-        }
+        // for (let i = 0; i < 48; i += 1) {
+        //   allLand[i] = PIXI.Sprite.fromImage(`http://localhost:4000/game/getLand/1/plain_1`)
+        //   allLand[i].interactive = true
+        //   allLand[i].buttonMode = true
+        //   graphicContainer.addChild(allLand[i])
+        //   allLand[i].on('pointerup', () => {
+        //     console.log(allLand[i].x)
+        //   })
+        //   allLand[i].y = Scaling.tileSize * Scaling.baseObjectFloor
+        //   allLand[i].x = Scaling.tileSize * i
+        //   allLand[i].height = Scaling.tileSize
+        //   allLand[i].width = Scaling.tileSize
+        // }
         let pos = 0
-        dataWorldTest = data.data[0]
-        for (let i = 0; i < data.data[0].length; i += 1) {
-          graphicLand[i] = PIXI.Sprite.fromImage(`http://localhost:4000/game/getLand/1/${data.data[0][i].name}`)
-          // graphicLand[i].interactive = true
-          // graphicLand[i].buttonMode = true
-          graphicContainer.addChild(graphicLand[i])
-          // graphicLand[i].on('pointerup', () => {
-          //   console.log(graphicLand[i].x)
-          // })
-          graphicLand[i].y = Scaling.tileSize * 9
-          graphicLand[i].x = Scaling.tileSize * pos
-          graphicLand[i].height = Scaling.tileSize
-          graphicLand[i].width = Scaling.tileSize * data.data[0][i].numTile
-          pos += data.data[0][i].numTile
-        }
-        pos = 0
+        const ObjectsInArea = data.data
+        console.log('get world data first')
+        console.log(data.data)
+        // dataLandTest = data.data.lands[0]
+        ObjectsInArea.forEach((el) => {
+          console.log('check elemnet in map')
+          console.log(el)
+          dataObjLayers[el.objectDetail[0].layer - 1].push(el)
+        })
+        // dataObjLayers[] = data.data.objects.layer_1[0]
+        // dataObjTest_layer_2 = data.data.objects.layer_2[0]
+        // for (let i = 0; i < dataLandTest.length; i += 1) {
+        //   graphicLand[i] = PIXI.Sprite.fromImage(`http://localhost:4000/game/getLand/1/${dataLandTest[i].name}`)
+        //   // graphicLand[i].interactive = true
+        //   // graphicLand[i].buttonMode = true
+        //   landfrontContainer.addChild(graphicLand[i])
+        //   // graphicLand[i].on('pointerup', () => {
+        //   //   console.log(graphicLand[i].x)
+        //   // })
+        //   graphicLand[i].y = Scaling.tileSize * (Scaling.baseFloor)
+        //   graphicLand[i].x = Scaling.tileSize * pos
+        //   graphicLand[i].height = Scaling.tileSize * 2
+        //   graphicLand[i].width = Scaling.tileSize * dataLandTest[i].numTile
+        //   pos += dataLandTest[i].numTile
+        // }
+        dataObjLayers.map((layerData) => {
+          for (let i = 0; i < layerData.length; i += 1) {
+            layerData[i].sprite = PIXI.Sprite.fromImage(`http://localhost:4000/game/getObject/1/${layerData[i].objectDetail[0].id}`)
+            layerData[i].sprite.anchor.x = 0.5
+            layerData[i].sprite.interactive = true
+            layerData[i].sprite.buttonMode = true
+            objectContainer.addChild(layerData[i].sprite)
+            layerData[i].sprite.on('pointerup', () => {
+              console.log(layerData[i].sprite.x)
+            })
+            console.log(layerData[i].x)
+            layerData[i].sprite.y = (Scaling.tileSize * Scaling.baseObjectFloor) - (Scaling.factorTileSize * layerData[i].sprite._texture.baseTexture.height)
+            layerData[i].sprite.x = Scaling.tileSize * (layerData[i].x + (layerData[i].objectDetail[0].tileWidth / 2))
+            layerData[i].sprite.height = Scaling.factorTileSize * layerData[i].sprite._texture.baseTexture.height
+            layerData[i].sprite.width = Scaling.factorTileSize * layerData[i].sprite._texture.baseTexture.width
+          }
+          return layerData
+        })
+        console.log(dataObjLayers)
+        // for (let i = 0; i < dataObjTest_layer_1.length; i += 1) {
+        //   graphicObj_layer_1[i] = PIXI.Sprite.fromImage(`http://localhost:4000/game/getObject/1/${dataObjTest_layer_1[i].name}`)
+        //   graphicObj_layer_1[i].anchor.x = 0.5
+        //   graphicObj_layer_1[i].interactive = true
+        //   graphicObj_layer_1[i].buttonMode = true
+        //   objectContainer.addChild(graphicObj_layer_1[i])
+        //   graphicObj_layer_1[i].on('pointerup', () => {
+        //     console.log(graphicObj_layer_1[i].x)
+        //   })
+        //   console.log(graphicObj_layer_1[i])
+        //   graphicObj_layer_1[i].y = (Scaling.tileSize * Scaling.baseObjectFloor) - (Scaling.factorTileSize * graphicObj_layer_1[i]._texture.baseTexture.height)
+        //   graphicObj_layer_1[i].x = Scaling.tileSize * (dataObjTest_layer_1[i].x + (dataObjTest_layer_1[i].numTile / 2))
+        //   graphicObj_layer_1[i].height = Scaling.factorTileSize * graphicObj_layer_1[i]._texture.baseTexture.height
+        //   graphicObj_layer_1[i].width = Scaling.factorTileSize * graphicObj_layer_1[i]._texture.baseTexture.width
+        // }
+        // for (let i = 0; i < dataObjTest_layer_2.length; i += 1) {
+        //   graphicObj_layer_2[i] = PIXI.Sprite.fromImage(`http://localhost:4000/game/getObject/1/${dataObjTest_layer_2[i].name}`)
+        //   graphicObj_layer_2[i].anchor.x = 0.5
+        //   graphicObj_layer_2[i].interactive = true
+        //   graphicObj_layer_2[i].buttonMode = true
+        //   objectContainer.addChild(graphicObj_layer_2[i])
+        //   graphicObj_layer_2[i].on('pointerup', () => {
+        //     console.log(graphicObj_layer_2[i].x)
+        //   })
+        //   graphicObj_layer_2[i].y = (Scaling.tileSize * Scaling.baseObjectFloor) - (Scaling.factorTileSize * graphicObj_layer_2[i]._texture.baseTexture.height)
+        //   graphicObj_layer_2[i].x = Scaling.tileSize * (dataObjTest_layer_2[i].x + (dataObjTest_layer_2[i].numTile / 2))
+        //   graphicObj_layer_2[i].height = Scaling.factorTileSize * graphicObj_layer_2[i]._texture.baseTexture.height
+        //   graphicObj_layer_2[i].width = Scaling.factorTileSize * graphicObj_layer_2[i]._texture.baseTexture.width
+        // }
         // for (let i = 0; i < 48; i += 1) {
         //   allLand[i].y = Scaling.tileSize * 11
         //   allLand[i].x = Scaling.tileSize * i
@@ -424,31 +570,56 @@ class Playground extends Component {
         const start = performance.now()
         if (document.getElementById('mainCanvas')) Scaling.scalingApp('mainCanvas')
 
-        for (let i = 0; i < 10; i += 1) {
-          allObject[i].y = Scaling.tileSize * 8
-          allObject[i].x = Scaling.tileSize * i
-          allObject[i].height = Scaling.tileSize
-          allObject[i].width = Scaling.tileSize
-        }
+        // for (let i = 0; i < 10; i += 1) {
+        //   allObject[i].y = Scaling.tileSize * 8
+        //   allObject[i].x = Scaling.tileSize * i
+        //   allObject[i].height = Scaling.tileSize
+        //   allObject[i].width = Scaling.tileSize
+        // }
         let pos = 0
-        if (dataWorldTest) {
-          for (let i = 0; i < 48; i += 1) {
-            allLand[i].y = Scaling.tileSize * 9
-            allLand[i].x = Scaling.tileSize * i
-            allLand[i].height = Scaling.tileSize
-            allLand[i].width = Scaling.tileSize
-          }
-          for (let i = 0; i < dataWorldTest.length; i += 1) {
-            graphicLand[i].y = Scaling.tileSize * 9
-            graphicLand[i].x = Scaling.tileSize * pos
-            graphicLand[i].height = Scaling.tileSize
-            graphicLand[i].width = Scaling.tileSize * dataWorldTest[i].numTile
-            pos += dataWorldTest[i].numTile
-          }
-        }
+        // if (dataLandTest && dataObjTest_layer_1 && dataObjTest_layer_2) {
+          // for (let i = 0; i < 48; i += 1) {
+          //   allLand[i].y = Scaling.tileSize * Scaling.baseObjectFloor
+          //   allLand[i].x = Scaling.tileSize * i
+          //   allLand[i].height = Scaling.tileSize
+          //   allLand[i].width = Scaling.tileSize
+          // }
+          // for (let i = 0; i < dataLandTest.length; i += 1) {
+          //   graphicLand[i].y = Scaling.tileSize * (Scaling.baseFloor - 2)
+          //   graphicLand[i].x = Scaling.tileSize * pos
+          //   graphicLand[i].height = Scaling.tileSize * 2
+          //   graphicLand[i].width = Scaling.tileSize * dataLandTest[i].numTile
+          //   pos += dataLandTest[i].numTile
+          // }
+          // for (let i = 0; i < dataObjTest_layer_1.length; i += 1) {
+          //   graphicObj_layer_1[i].y = (Scaling.tileSize * Scaling.baseObjectFloor) - (Scaling.factorTileSize * graphicObj_layer_1[i]._texture.baseTexture.height)
+          //   graphicObj_layer_1[i].x = Scaling.tileSize * (dataObjTest_layer_1[i].x + (dataObjTest_layer_1[i].numTile / 2))
+          //   graphicObj_layer_1[i].height = Scaling.factorTileSize * graphicObj_layer_1[i]._texture.baseTexture.height 
+          //   graphicObj_layer_1[i].width = Scaling.factorTileSize * graphicObj_layer_1[i]._texture.baseTexture.width 
+          // }
+          // for (let i = 0; i < dataObjTest_layer_2.length; i += 1) {
+          //   graphicObj_layer_2[i].y = (Scaling.tileSize * Scaling.baseObjectFloor) - (Scaling.factorTileSize * graphicObj_layer_2[i]._texture.baseTexture.height)
+          //   graphicObj_layer_2[i].x = Scaling.tileSize * (dataObjTest_layer_2[i].x + (dataObjTest_layer_2[i].numTile / 2))
+          //   graphicObj_layer_2[i].height = Scaling.factorTileSize * graphicObj_layer_2[i]._texture.baseTexture.height
+          //   graphicObj_layer_2[i].width = Scaling.factorTileSize * graphicObj_layer_2[i]._texture.baseTexture.width
+          // }
+        // }
         pos = 0
         app.renderer.resize(Scaling.windowWidth, Scaling.windowHeight);
-        GameElement.updateScaling(Scaling)
+        if (Object.keys(playerData.thisPlayer).length !== 0) {
+          GameElement.updateScaling(Scaling, playerData.thisPlayer)
+          dataObjLayers.map((layerData) => {
+            for (let i = 0; i < layerData.length; i += 1) {
+              layerData[i].sprite.y = (Scaling.tileSize * Scaling.baseObjectFloor) - (Scaling.factorTileSize * layerData[i].sprite._texture.baseTexture.height)
+              layerData[i].sprite.x = Scaling.tileSize * (layerData[i].x + (layerData[i].objectDetail[0].tileWidth / 2))
+              layerData[i].sprite.height = Scaling.factorTileSize * layerData[i].sprite._texture.baseTexture.height
+              layerData[i].sprite.width = Scaling.factorTileSize * layerData[i].sprite._texture.baseTexture.width
+            }
+            return layerData
+          })
+        } else {
+          
+        }
         if ((Object.keys(PointerObject.objectData).length !== 0)) PointerObject.updateScaling(Scaling)
         background.width = 90 * 48 * Scaling.factor
         background.height = Scaling.windowHeight
@@ -462,7 +633,10 @@ class Playground extends Component {
   }
 
   render() {
+    console.log('render zone')
+    console.log(this.props.userData)
     return (
+      this.props.userData &&
       <div>
         <div id="mainCanvas" />
       </div>

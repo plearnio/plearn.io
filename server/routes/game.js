@@ -29,9 +29,9 @@ game.get('/getLand/:id/:name/', (req, res) => {
     res.sendFile(path.resolve(`./public/assets/lands/${req.params.name}.png`))
   } else res.send('Access denied')
 })
-game.get('/getBackground/:id/:background/:layer', (req, res) => {
+game.get('/getBackground/:id/:name', (req, res) => {
   if (parseInt(req.params.id, 10) === 1) {
-    res.sendFile(path.resolve(`public/assets/background/${req.params.background}/${req.params.layer}.png`))
+    res.sendFile(path.resolve(`public/assets/background/${req.params.name}.png`))
   } else res.send('Access denied')
 })
 game.get('/getPlayer/:id/:name', (req, res) => {
