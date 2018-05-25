@@ -18,6 +18,7 @@ const userSchema = new Schema({
     name: String
   },
   name: String,
+  inspectedObject: [{ type: String }],
   gameGeneralStatus: {
     health: { type: Number, default: 100 },
     energy: { type: Number, default: 100 },
@@ -26,7 +27,7 @@ const userSchema = new Schema({
   experience: {
     level: String,
     nowExp: Number,
-    maxExp: Number 
+    maxExp: Number
   },
   pos: {
     map: { type: Schema.Types.ObjectId },
@@ -36,7 +37,7 @@ const userSchema = new Schema({
     y: Number
   },
   _token: String
-})
+}, { usePushEach: true })
 
 // generating a hash
 userSchema.methods.generateHash = function(password) {

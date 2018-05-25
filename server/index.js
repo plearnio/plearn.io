@@ -104,8 +104,8 @@ app.get('/randomtest', (req, res) => {
     console.log(data)
     res.json(data)
   })
-  // const worldRandom = (random())
-  // res.json(worldRandom)
+  const worldRandom = (random())
+  res.json(worldRandom)
 })
 
 app.get('/getMapData', (req, res, next) => {
@@ -133,9 +133,16 @@ app.get('/getMapData', (req, res, next) => {
         as: 'objectDetail'
       }
     }
-  ]).then((data) => {
-    console.log(data)
-    res.json(data)
+  ]).then((dataObjects) => {
+    AreaInMap.find({ _id: mongoose.Types.ObjectId(req.headers.mapArea) }, (err, dataArea) => {
+      console.log(dataArea)
+      res.json({
+        worldData: {
+          dataObjects: dataObjects,
+          dataArea: dataArea
+        }
+      })
+    })
   })
   // const worldRandom = (random())
   // res.json(worldRandom)

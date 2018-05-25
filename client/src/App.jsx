@@ -190,8 +190,10 @@ class App extends Component {
   selectMenu(key) {
     if (this.state.menuSelect[key] === true) {
       this.setState({
-        showMenu: !this.state.showMenu
+        showMenu: !this.state.showMenu,
+        menuSelect: [false, false]
       })
+
     } else {
       const clearMenu = [false, false]
       clearMenu[key] = true
@@ -216,28 +218,23 @@ class App extends Component {
   }
 
   setMainMenu(data) {
-    console.log(data)
-    if (data.status === 'inspecting') {
-      console.log( 'wait : ' + data.timeMillisec / 1000 + 'seconds')
-      this.setState({
-        focusObject: data
-      })
-      console.log(this.state.focusObject)
-      if (this.state.menuSelect[0] === true) {
-        this.setState({
-          menuSelect: [true, false]
-        })
-      } else {
-        this.selectMenu(0)
-      }
+    // if (data.status === 'inspecting') {
+    //   console.log( 'wait : ' + data.timeMillisec / 1000 + 'seconds')
+    this.setState({
+      focusObject: data
+    })
+    console.log(this.state.focusObject)
+    if (this.state.menuSelect[0] !== true)  {
+      this.selectMenu(0)
     }
-    else if (data.status === 'complete') {
-      console.log('complete !') 
-      console.log(data)
-      this.setState({
-        focusObject: data
-      })
-    }
+      // }
+    // } else if (data.status === 'complete') {
+    //   console.log('complete !') 
+    //   console.log(data)
+    //   this.setState({
+    //     focusObject: data
+    //   })
+    // }
   }
 
   resizeMenu() {
@@ -273,9 +270,9 @@ class App extends Component {
               <div>
                 <h3>Main panel</h3>
                 <h5>หน้าหลัก</h5>
-                {/* <div>{this.state.focusObject.status}</div>
+                <div>{this.state.focusObject.status}</div>
                 <br />
-                <div>{(this.state.focusObject.status !== 'no object') ? this.state.focusObject.objectData.name : 'no object inspected'}</div> */}
+                <div>{(this.state.focusObject.status !== 'no-object') ? this.state.focusObject.objectData.name : 'no object inspected'}</div>
               </div>
             )}
             {this.state.menuSelect[1] && (

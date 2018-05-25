@@ -54,6 +54,12 @@ let worldDataSocket = {}
 
 const allObject = []
 
+const globalAreaData = {
+  data: {},
+  allLand: [],
+  graphicLand: []
+}
+
 const dataObjLayers = [[], [], []]
 
 let layoutContainer
@@ -164,6 +170,7 @@ const GameElement = new GameElementData()
 class ListDataObject {
   constructor() {
     this.objectData = {}
+    this.target = null
   }
   listAction() {
     // console.log(this.objectData)
@@ -171,37 +178,47 @@ class ListDataObject {
     layoutContainer = new PIXI.Container()
     if (!(Object.keys(this.objectData).length === 0)) {
       app.stage.addChild(layoutContainer)
-      allObject[this.objectData.id].alpha = 0.5
-      this.objectData.actions.forEach((element, index) => {
-        const action = PIXI.Sprite.fromImage(buttonAction)
-        const textAction = new PIXI.Text(element, { fontFamily: 'Arial', fontSize: 24, align: 'center' })
-        textAction.anchor.x = 0.5
-        action.buttonMode = true
-        action.interactive = true
-        action.on('pointerup', () => {
-          socket.emit('pointerUp', { inputId: 'clickAction', element, objectId: this.objectData.id, targetObject: allObject[this.objectData.id].x / Scaling.factor })
-        })
-        layoutContainer.addChild(action)
-        layoutContainer.addChild(textAction)
+      dataObjLayers.forEach((layerData) => {
+        if (layerData[this.objectData.id]) {
+          if (this.target) this.target.sprite.alpha = 1
+          this.target = layerData[this.objectData.id]
+          this.target.sprite.alpha = 0.5
+      // allObject[this.objectData.id].alpha = 0.5
+          this.objectData.actions.forEach((element, index) => {
+            const action = PIXI.Sprite.fromImage(buttonAction)
+            const textAction = new PIXI.Text(element, { fontFamily: 'Arial', fontSize: 35, align: 'center' })
+            textAction.anchor.x = 0.5
+            action.buttonMode = true
+            action.interactive = true
+            action.on('pointerup', () => {
+              socket.emit('pointerUp', { inputId: 'clickAction', element, objectId: this.target.objectId, targetObject: this.target.sprite.x / Scaling.factor })
+            })
+            layoutContainer.addChild(action)
+            layoutContainer.addChild(textAction)
+          })
+        } else {
+          console.log('no object')
+        }
       })
-    } else {
-      console.log('no object')
     }
   }
   updateScaling() {
-    layoutContainer.children.forEach((childElement, index) => {
-      if (index % 2 === 0) {
-        childElement.height = 60 * Scaling.factor
-        childElement.width = 300 * Scaling.factor
-        childElement.x = (allObject[this.objectData.id].x + graphicContainer.x)
-        childElement.y = (allObject[this.objectData.id].y - ((70 * ((index / 2) + 1)) * Scaling.factor))
-      } else {
-        childElement.height = 30 * Scaling.factor
-        childElement.width = 100 * Scaling.factor
-        childElement.x = (allObject[this.objectData.id].x + graphicContainer.x) + (150 * Scaling.factor)
-        childElement.y = (allObject[this.objectData.id].y - (((70 * ((index / 2))) + 20) * Scaling.factor))
-      }
-    })
+    if (this.target) {
+      layoutContainer.children.forEach((childElement, index) => {
+        if (index % 2 === 0) {
+          childElement.height = 60 * Scaling.factor
+          childElement.width = 300 * Scaling.factor
+          childElement.x = (this.target.sprite.x + graphicContainer.x)
+          childElement.y = ((this.target.sprite.y + this.target.sprite.height / 1.3) - ((70 * ((index / 2) + 1)) * Scaling.factor))
+        } else {
+          console.log(childElement)
+          childElement.height = childElement._texture.baseTexture.realHeight * Scaling.factor
+          childElement.width = childElement._texture.baseTexture.realWidth * Scaling.factor
+          childElement.x = (this.target.sprite.x + graphicContainer.x) + (150 * Scaling.factor)
+          childElement.y = ((this.target.sprite.y + this.target.sprite.height / 1.3) - (((70 * ((index / 2))) + 20) * Scaling.factor))
+        }
+      })
+    }
   }
 }
 
@@ -217,12 +234,13 @@ const initialData = () => {
   console.log(background.Element)
   background.Element.forEach((element) => {
     backgroundContainer.addChild(element)
-  })
-  background.Element[background.Element.length - 1].interactive = true
-  background.Element[background.Element.length - 1].on('pointerup', () => {
-    if (Object.keys(PointerObject.objectData).length !== 0) allObject[PointerObject.objectData.id].alpha = 1
-    PointerObject.objectData = {}
-    app.stage.removeChild(layoutContainer)
+    element.on('pointerup', () => {
+      if (PointerObject.target) {
+        PointerObject.target.sprite.alpha = 1
+        PointerObject.target = null
+      }
+      app.stage.removeChild(layoutContainer)
+    })
   })
 
   blurFilter.blur = 20
@@ -383,7 +401,21 @@ const socketEvent = () => {
   })
 
   socket.on('updateDataArea', (objectsInArea) => { // 500 ms
-    console.log(objectsInArea)
+    // add and update
+    if (objectsInArea) {
+      for (let i = 0; i < objectsInArea.length; i += 1) {
+        let found = false
+        let layer = objectsInArea[i].objectDetail[0].layer - 1
+        Object.keys(dataObjLayers[layer])
+        .forEach((index) => {
+          if ( index === objectsInArea[i]._id) {
+            console.log('found, update')
+            found = true
+            Object.assign(dataObjLayers[layer][index], objectsInArea[i])
+          }
+        })
+      }
+    }
   })
 }
 
@@ -418,38 +450,31 @@ class Playground extends Component {
     })
 
     const assetsLoaded = () => {
-      for (let i = 0; i < 10; i += 1) {
-        allObject.push(PIXI.Sprite.fromImage('http://localhost:4000/game/getObject/1/grass1'))
-        allObject[i].interactive = true
-        allObject[i].buttonMode = true
-        const x = allObject[i].x
-        graphicContainer.addChild(allObject[i])
-        allObject[i].on('pointerup', (event) => {
-          socket.emit('pointerUp', { inputId: 'pointObject', objectId: i, objectTargetX: x })
-        })
-        allObject[i].on('pointerover', () => {
-          allObject[i].alpha = 0.5
-        })
-        allObject[i].on('pointerout', () => {
-          if ((Object.keys(PointerObject.objectData).length === 0) || (PointerObject.objectData.id !== i)) allObject[i].alpha = 1
-        })
-      }
-      // const allLand = []
+      // for (let i = 0; i < 10; i += 1) {
+      //   allObject.push(PIXI.Sprite.fromImage('http://localhost:4000/game/getObject/1/grass1'))
+      //   allObject[i].interactive = true
+      //   allObject[i].buttonMode = true
+      //   const x = allObject[i].x
+      //   graphicContainer.addChild(allObject[i])
+      //   allObject[i].on('pointerup', (event) => {
+      //     socket.emit('pointerUp', { inputId: 'pointObject', objectId: i, objectTargetX: x })
+      //   })
+      //   allObject[i].on('pointerover', () => {
+      //     allObject[i].alpha = 0.5
+      //   })
+      //   allObject[i].on('pointerout', () => {
+      //     if ((PointerObject.target === null || (PointerObject.objectData.id !== i)) allObject[i].alpha = 1
+      //   })
+      // }
+      // // const allLand = []
       // const graphicLand = []
       // const graphicObj_layer_1 = []
       // const graphicObj_layer_2 = []
 
       // let dataLandTest = null
-      const authGetMap = {
-        method: 'GET',
-        url: 'http://localhost:4000/getMapData',
-        headers: {
-          Cookie: `__token=${Cookies.get('__token')};`
-        },
-        json: true
-      }
       console.log('asdassadasdasd')
-      axios({
+      if (Object.keys(playerData.thisPlayer).length !== 0) {
+        axios({
         method: 'GET',
         url: 'http://localhost:4000/getMapData',
         headers: {
@@ -460,100 +485,73 @@ class Playground extends Component {
       }).then((data) => {
         console.log('in axio get map data')
         console.log(data)
-        // for (let i = 0; i < 48; i += 1) {
-        //   allLand[i] = PIXI.Sprite.fromImage(`http://localhost:4000/game/getLand/1/plain_1`)
-        //   allLand[i].interactive = true
-        //   allLand[i].buttonMode = true
-        //   graphicContainer.addChild(allLand[i])
-        //   allLand[i].on('pointerup', () => {
-        //     console.log(allLand[i].x)
-        //   })
-        //   allLand[i].y = Scaling.tileSize * Scaling.baseObjectFloor
-        //   allLand[i].x = Scaling.tileSize * i
-        //   allLand[i].height = Scaling.tileSize
-        //   allLand[i].width = Scaling.tileSize
-        // }
         let pos = 0
-        const ObjectsInArea = data.data
+        const objectsInArea = data.data.worldData.dataObjects
+        const areaData = data.data.worldData.dataArea[0]
         console.log('get world data first')
         console.log(data.data)
         // dataLandTest = data.data.lands[0]
-        ObjectsInArea.forEach((el) => {
+        objectsInArea.forEach((el) => {
           console.log('check elemnet in map')
           console.log(el)
-          dataObjLayers[el.objectDetail[0].layer - 1].push(el)
+          dataObjLayers[el.objectDetail[0].layer - 1][el._id] = el
         })
-        // dataObjLayers[] = data.data.objects.layer_1[0]
-        // dataObjTest_layer_2 = data.data.objects.layer_2[0]
-        // for (let i = 0; i < dataLandTest.length; i += 1) {
-        //   graphicLand[i] = PIXI.Sprite.fromImage(`http://localhost:4000/game/getLand/1/${dataLandTest[i].name}`)
-        //   // graphicLand[i].interactive = true
-        //   // graphicLand[i].buttonMode = true
-        //   landfrontContainer.addChild(graphicLand[i])
-        //   // graphicLand[i].on('pointerup', () => {
-        //   //   console.log(graphicLand[i].x)
-        //   // })
-        //   graphicLand[i].y = Scaling.tileSize * (Scaling.baseFloor)
-        //   graphicLand[i].x = Scaling.tileSize * pos
-        //   graphicLand[i].height = Scaling.tileSize * 2
-        //   graphicLand[i].width = Scaling.tileSize * dataLandTest[i].numTile
-        //   pos += dataLandTest[i].numTile
-        // }
-        dataObjLayers.map((layerData) => {
-          for (let i = 0; i < layerData.length; i += 1) {
+        globalAreaData.data = areaData
+        areaData.coverLand.forEach((areaCoverLand, index) => {
+          globalAreaData.graphicLand[index] = areaCoverLand
+          globalAreaData.graphicLand[index].sprite = PIXI.Sprite.fromImage(`http://localhost:4000/game/getLand/1/${areaCoverLand.name}`)
+          globalAreaData.graphicLand[index].sprite.x = areaCoverLand.x
+          landfrontContainer.addChild(globalAreaData.graphicLand[index].sprite)
+          console.log(globalAreaData.graphicLand[index].sprite)
+          globalAreaData.graphicLand[index].y = Scaling.tileSize * (Scaling.baseFloor - 2)
+          globalAreaData.graphicLand[index].x = Scaling.tileSize * areaCoverLand.x
+          globalAreaData.graphicLand[index].height = Scaling.tileSize * 2
+          globalAreaData.graphicLand[index].width = Scaling.tileSize * areaCoverLand.numTile
+         })
+         console.log()
+        // for (let i = 0; i < 48; i += 1) {
+      //   allLand.push(PIXI.Sprite.fromImage('http://localhost:4000/game/getObject/1/distland'))
+      //   allLand[i].interactive = true
+      //   allLand[i].buttonMode = true
+      //   graphicContainer.addChild(allLand[i])
+      //   allLand[i].on('pointerup', () => {
+      //     console.log(allLand[i].x)
+      //   })
+      // }
+
+          dataObjLayers.reverse()
+          dataObjLayers.map((layerData) => {
+          Object.keys(layerData)
+          .forEach((i) => {
             layerData[i].sprite = PIXI.Sprite.fromImage(`http://localhost:4000/game/getObject/1/${layerData[i].objectDetail[0].id}`)
             layerData[i].sprite.anchor.x = 0.5
             layerData[i].sprite.interactive = true
             layerData[i].sprite.buttonMode = true
             objectContainer.addChild(layerData[i].sprite)
-            layerData[i].sprite.on('pointerup', () => {
-              console.log(layerData[i].sprite.x)
+            // layerData[i].sprite.on('pointerup', () => {
+            //   console.log(layerData[i].sprite.x)
+            // })
+            layerData[i].sprite.on('pointerup', (event) => {
+              socket.emit('pointerUp', { inputId: 'pointObject', objectId: layerData[i].objectDetail[0].id, objectTargetX: layerData[i].x, objectTarget: i })
+            })
+            layerData[i].sprite.on('pointerover', () => {
+              layerData[i].sprite.alpha = 0.5
+            })
+            layerData[i].sprite.on('pointerout', () => {
+              if ((PointerObject.target === null) || (PointerObject.target._id !== i)) layerData[i].sprite.alpha = 1
             })
             console.log(layerData[i].x)
             layerData[i].sprite.y = (Scaling.tileSize * Scaling.baseObjectFloor) - (Scaling.factorTileSize * layerData[i].sprite._texture.baseTexture.height)
             layerData[i].sprite.x = Scaling.tileSize * (layerData[i].x + (layerData[i].objectDetail[0].tileWidth / 2))
             layerData[i].sprite.height = Scaling.factorTileSize * layerData[i].sprite._texture.baseTexture.height
             layerData[i].sprite.width = Scaling.factorTileSize * layerData[i].sprite._texture.baseTexture.width
-          }
           return layerData
+          })
         })
+        dataObjLayers.reverse()
         console.log(dataObjLayers)
-        // for (let i = 0; i < dataObjTest_layer_1.length; i += 1) {
-        //   graphicObj_layer_1[i] = PIXI.Sprite.fromImage(`http://localhost:4000/game/getObject/1/${dataObjTest_layer_1[i].name}`)
-        //   graphicObj_layer_1[i].anchor.x = 0.5
-        //   graphicObj_layer_1[i].interactive = true
-        //   graphicObj_layer_1[i].buttonMode = true
-        //   objectContainer.addChild(graphicObj_layer_1[i])
-        //   graphicObj_layer_1[i].on('pointerup', () => {
-        //     console.log(graphicObj_layer_1[i].x)
-        //   })
-        //   console.log(graphicObj_layer_1[i])
-        //   graphicObj_layer_1[i].y = (Scaling.tileSize * Scaling.baseObjectFloor) - (Scaling.factorTileSize * graphicObj_layer_1[i]._texture.baseTexture.height)
-        //   graphicObj_layer_1[i].x = Scaling.tileSize * (dataObjTest_layer_1[i].x + (dataObjTest_layer_1[i].numTile / 2))
-        //   graphicObj_layer_1[i].height = Scaling.factorTileSize * graphicObj_layer_1[i]._texture.baseTexture.height
-        //   graphicObj_layer_1[i].width = Scaling.factorTileSize * graphicObj_layer_1[i]._texture.baseTexture.width
-        // }
-        // for (let i = 0; i < dataObjTest_layer_2.length; i += 1) {
-        //   graphicObj_layer_2[i] = PIXI.Sprite.fromImage(`http://localhost:4000/game/getObject/1/${dataObjTest_layer_2[i].name}`)
-        //   graphicObj_layer_2[i].anchor.x = 0.5
-        //   graphicObj_layer_2[i].interactive = true
-        //   graphicObj_layer_2[i].buttonMode = true
-        //   objectContainer.addChild(graphicObj_layer_2[i])
-        //   graphicObj_layer_2[i].on('pointerup', () => {
-        //     console.log(graphicObj_layer_2[i].x)
-        //   })
-        //   graphicObj_layer_2[i].y = (Scaling.tileSize * Scaling.baseObjectFloor) - (Scaling.factorTileSize * graphicObj_layer_2[i]._texture.baseTexture.height)
-        //   graphicObj_layer_2[i].x = Scaling.tileSize * (dataObjTest_layer_2[i].x + (dataObjTest_layer_2[i].numTile / 2))
-        //   graphicObj_layer_2[i].height = Scaling.factorTileSize * graphicObj_layer_2[i]._texture.baseTexture.height
-        //   graphicObj_layer_2[i].width = Scaling.factorTileSize * graphicObj_layer_2[i]._texture.baseTexture.width
-        // }
-        // for (let i = 0; i < 48; i += 1) {
-        //   allLand[i].y = Scaling.tileSize * 11
-        //   allLand[i].x = Scaling.tileSize * i
-        //   allLand[i].height = Scaling.tileSize
-        //   allLand[i].width = Scaling.tileSize
-        // }
       })
+    }
       // for (let i = 0; i < 48; i += 1) {
       //   allLand.push(PIXI.Sprite.fromImage('http://localhost:4000/game/getObject/1/distland'))
       //   allLand[i].interactive = true
@@ -577,7 +575,7 @@ class Playground extends Component {
         //   allObject[i].width = Scaling.tileSize
         // }
         let pos = 0
-        // if (dataLandTest && dataObjTest_layer_1 && dataObjTest_layer_2) {
+        if (globalAreaData.graphicLand.length > 0) {
           // for (let i = 0; i < 48; i += 1) {
           //   allLand[i].y = Scaling.tileSize * Scaling.baseObjectFloor
           //   allLand[i].x = Scaling.tileSize * i
@@ -591,12 +589,14 @@ class Playground extends Component {
           //   graphicLand[i].width = Scaling.tileSize * dataLandTest[i].numTile
           //   pos += dataLandTest[i].numTile
           // }
-          // for (let i = 0; i < dataObjTest_layer_1.length; i += 1) {
-          //   graphicObj_layer_1[i].y = (Scaling.tileSize * Scaling.baseObjectFloor) - (Scaling.factorTileSize * graphicObj_layer_1[i]._texture.baseTexture.height)
-          //   graphicObj_layer_1[i].x = Scaling.tileSize * (dataObjTest_layer_1[i].x + (dataObjTest_layer_1[i].numTile / 2))
-          //   graphicObj_layer_1[i].height = Scaling.factorTileSize * graphicObj_layer_1[i]._texture.baseTexture.height 
-          //   graphicObj_layer_1[i].width = Scaling.factorTileSize * graphicObj_layer_1[i]._texture.baseTexture.width 
-          // }
+          for (let i = 0; i < globalAreaData.graphicLand.length; i += 1) {
+            globalAreaData.graphicLand[i].sprite.y = Scaling.tileSize * (Scaling.baseFloor - 2)
+            globalAreaData.graphicLand[i].sprite.x = Scaling.tileSize * pos
+            globalAreaData.graphicLand[i].sprite.height = Scaling.tileSize * 2
+            globalAreaData.graphicLand[i].sprite.width = Scaling.tileSize * globalAreaData.graphicLand[i].numTile
+            pos += globalAreaData.graphicLand[i].numTile
+          }
+          pos = 0
           // for (let i = 0; i < dataObjTest_layer_2.length; i += 1) {
           //   graphicObj_layer_2[i].y = (Scaling.tileSize * Scaling.baseObjectFloor) - (Scaling.factorTileSize * graphicObj_layer_2[i]._texture.baseTexture.height)
           //   graphicObj_layer_2[i].x = Scaling.tileSize * (dataObjTest_layer_2[i].x + (dataObjTest_layer_2[i].numTile / 2))
@@ -604,17 +604,20 @@ class Playground extends Component {
           //   graphicObj_layer_2[i].width = Scaling.factorTileSize * graphicObj_layer_2[i]._texture.baseTexture.width
           // }
         // }
-        pos = 0
+        }
         app.renderer.resize(Scaling.windowWidth, Scaling.windowHeight);
         if (Object.keys(playerData.thisPlayer).length !== 0) {
           GameElement.updateScaling(Scaling, playerData.thisPlayer)
           dataObjLayers.map((layerData) => {
-            for (let i = 0; i < layerData.length; i += 1) {
+            Object.keys(layerData)
+            .forEach((i) => {
+              const newTexture = PIXI.Texture.fromImage(`http://localhost:4000/game/getObject/1/${layerData[i].objectDetail[0].id}`)
+              layerData[i].sprite.texture = newTexture
               layerData[i].sprite.y = (Scaling.tileSize * Scaling.baseObjectFloor) - (Scaling.factorTileSize * layerData[i].sprite._texture.baseTexture.height)
               layerData[i].sprite.x = Scaling.tileSize * (layerData[i].x + (layerData[i].objectDetail[0].tileWidth / 2))
               layerData[i].sprite.height = Scaling.factorTileSize * layerData[i].sprite._texture.baseTexture.height
               layerData[i].sprite.width = Scaling.factorTileSize * layerData[i].sprite._texture.baseTexture.width
-            }
+            })
             return layerData
           })
         } else {

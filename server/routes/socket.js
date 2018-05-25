@@ -73,27 +73,39 @@ const socketServer = () => {
 
     const allActions = {
       inspect: (data) => {
-        const checkRange = false
-        client.emit('getDataObject', {
-          status: 'inspecting',
-          timeMillisec: 3500,
-          objectData: {
-            name: '????',
-            description: '??????????????',
-            id: data.objectId
-          },
-          id: data.objectId
-        })
-        setTimeout(() => {
-          client.emit('getDataObject', {
-            status: 'complete',
-            objectData: {
-              name: 'grass',
-              description: 'grass grass grass test',
+        console.log(data)
+        User.findById(mongoose.Types.ObjectId(userData._id)).then((userDocs) => {
+          console.log(data.objectId)
+          SubObject.findOne({ id: data.objectId }).then((subObjectDocs) => {
+            console.log(subObjectDocs)
+            const checkRange = false
+            client.emit('getDataObject', {
+              status: 'inspecting',
+              objectData: {
+                name: '????'
+              },
+              timeMillisec: 3500,
               id: data.objectId
-            }
+            })
+            setTimeout(() => {
+              client.emit('getDataObject', {
+                status: 'complete',
+                objectData: subObjectDocs
+              })
+              userDocs.inspectedObject = []
+              userDocs.experience.nowExp += 10
+              if (userDocs.experience.nowExp > userDocs.experience.maxExp) {
+                userDocs.experience.nowExp -= userDocs.experience.maxExp
+                userDocs.experience.level += 1
+                userDocs.experience.maxExp *= 1.5
+              }
+              console.log(userDocs)
+              userDocs.save().then((docs) => {
+                allPlayer[userData._id].detail = docs
+              })
+            }, 3500)
           })
-        }, 3500)
+        })
       },
       walkTo: (data) => {
         console.log(data)
@@ -103,17 +115,56 @@ const socketServer = () => {
       }
     }
     client.on('pointerUp', (data) => {
+      const inspectedObject = allPlayer[userData._id].detail.inspectedObject
+      // console.log(inspectedObject)
       if (data.inputId === 'pointObject') {
-        client.emit('getPointingObjectData', {
-          objectData: {
-            name: '????',
-            actions: [
-              'walkTo',
-              'inspect'
-            ],
+        const objectIdFound = inspectedObject.find((element) => {
+          return data.objectId.toString() === element.toString()
+        });
+        console.log(data.objectId.toString(), inspectedObject)
+        if (objectIdFound) {
+          SubObject.findOne({ id: objectIdFound }).then((subObjectDocs) => {
+            if (subObjectDocs) {
+              console.log(data.objectTarget)
+              client.emit('getPointingObjectData', {
+                objectData: {
+                  name: subObjectDocs.name,
+                  actions: [
+                    'ตัด'
+                  ],
+                  id: data.objectTarget
+                }
+              })
+              client.emit('getDataObject', {
+                status: 'ตรวจสอบเรียบร้อยแล้ว',
+                objectData: subObjectDocs,
+                id: data.objectId
+              })
+            } 
+            console.log('found')
+          })
+        } else {
+          console.log('not found')
+          client.emit('getPointingObjectData', {
+            objectData: {
+              name: '????',
+              actions: [
+                'inspect'
+              ],
+              id: data.objectTarget
+            }
+          })
+          client.emit('getDataObject', {
+            status: 'ไม่รู้รายละเอียดของสิ่งนี้ ...',
+            timeMillisec: 3500,
+            objectData: {
+              name: '????',
+              description: '??????????????',
+              id: data.objectId
+            },
             id: data.objectId
-          }
-        })
+          })
+        }
       } else if (data.inputId === 'clickAction') {
         console.log(data.element)
         allActions[data.element](data)
@@ -170,16 +221,8 @@ const socketServer = () => {
             foreignField: '_id',
             as: 'areaDetail'
           }
-        }, {
-          $lookup: {
-            from: 'area_in_map',
-            localField: 'pos.mapArea',
-            foreignField: '_id',
-            as: 'areaDetail'
-          }
         }
       ]).then((userData) => {
-        console.log(userData[0].areaDetail[0].mapId)
         ObjectsInArea.aggregate([
           // mapId: mongoose.Types.ObjectId(userData[0].areaDetail[0].mapId)
           { $match: { mapId: mongoose.Types.ObjectId(userData[0].areaDetail[0].mapId) } },
@@ -192,11 +235,9 @@ const socketServer = () => {
             }
           }
         ]).then((objectsData) => {
-          console.log('object Aggregate')
-          console.log(objectsData)
           objectsData.forEach((objectData) => {
-            objectData.timeNowToNextPhaseMilli -= 2000
-            if (objectData.timeNowToNextPhaseMilli < 0) {
+            if (objectData.timeNowToNextPhaseMilli) objectData.timeNowToNextPhaseMilli -= 2000
+            if (objectData.timeNowToNextPhaseMilli !== null && objectData.timeNowToNextPhaseMilli <= 0) {
               objectData.timeNowToNextPhaseMilli = 0
               SubObject.findOne({ id: objectData.objectId }).then((subObjectData) => {
                 objectData.objectId = subObjectData.nextPhase
@@ -207,20 +248,16 @@ const socketServer = () => {
                   objectData.splice(subObjectData.slotOutput)
                 }
                 objectData.timeNowToNextPhaseMilli = subObjectData.timeToNextPhaseMilli
-                objectData.save((errUpdated) => {
-                  if (errUpdated) return errUpdated;
-                })
+                ObjectsInArea.findByIdAndUpdate(mongoose.Types.ObjectId(objectData._id), { $set: objectData }).exec()
               })
             } else {
-              objectData.save((errUpdated) => {
-                if (errUpdated) return errUpdated;
-              })
+              ObjectsInArea.findByIdAndUpdate(mongoose.Types.ObjectId(objectData._id), { $set: objectData }).exec()
             }
           })
-          console.log(' update objects in area ')
-          allClient[index].emit('updateDataArea', {
-            objectInArea: objectsData
-          })
+          const result = objectsData.filter(objectData => {
+            return objectData.areaId.toString() === userData[0].pos.mapArea.toString()
+          });
+          allClient[index].emit('updateDataArea', result)
         }).catch((err) => {
           if (err) {
             console.log(err)
