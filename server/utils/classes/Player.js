@@ -14,18 +14,15 @@ class Player {
     this.action = 'nothing'
     this.side = 'right'
     this.rangeInteract = 20
-    // this.status_bar = {
-    //   health: 60,
-    //   energy: 90,
-    //   hunger: 50,
-    //   exp: 60 // in percentage
-    // }
   }
 
   updatePosition() {
     if (this.pressingRight) {
       if (this.detail.gameGeneralStatus.energy > 0) {
         this.detail.gameGeneralStatus.energy -= 0.05
+        if (this.detail.gameGeneralStatus.energy <= 0) {
+          this.detail.gameGeneralStatus.energy = 0
+        }
       }
       this.speedX = this.maxSpeed
       this.status = 'move'
@@ -33,6 +30,9 @@ class Player {
     } else if (this.pressingLeft) {
       if (this.detail.gameGeneralStatus.energy > 0) {
         this.detail.gameGeneralStatus.energy -= 0.05
+        if (this.detail.gameGeneralStatus.energy <= 0) {
+          this.detail.gameGeneralStatus.energy = 0
+        }
       }
       this.speedX = -this.maxSpeed
       this.status = 'move'
@@ -63,6 +63,17 @@ class Player {
     else this.detail.pos.x += this.speedX
 
     this.x = this.detail.pos.x
+    this.detail.gameGeneralStatus.hunger -= 0.5
+    if (this.detail.gameGeneralStatus.hunger <= 0) {
+      this.detail.gameGeneralStatus.hunger = 0
+      this.detail.gameGeneralStatus.health -= 0.05
+      if (this.detail.gameGeneralStatus.health <= 0) {
+        this.detail.gameGeneralStatus.health = 100
+        this.detail.gameGeneralStatus.energy = 100
+        this.detail.gameGeneralStatus.hunger = 100
+        this.detail.experience.nowExp = 0
+      }
+    }
   }
 }
 

@@ -50,6 +50,7 @@ const socketServer = () => {
         newPlayerId: userData._id
       })
     });
+    
     client.on('disconnect', () => {
       console.log('disconnect')
       delete allClient[userData._id]
@@ -92,7 +93,7 @@ const socketServer = () => {
                 status: 'complete',
                 objectData: subObjectDocs
               })
-              userDocs.inspectedObject = []
+              userDocs.inspectedObject.push(subObjectDocs.id)
               userDocs.experience.nowExp += 10
               if (userDocs.experience.nowExp > userDocs.experience.maxExp) {
                 userDocs.experience.nowExp -= userDocs.experience.maxExp
@@ -130,7 +131,7 @@ const socketServer = () => {
                 objectData: {
                   name: subObjectDocs.name,
                   actions: [
-                    'ตัด'
+                    'inspect'
                   ],
                   id: data.objectTarget
                 }
@@ -207,7 +208,6 @@ const socketServer = () => {
     })
   }, 1000 / 30) // 30 fps
 
-  // genesis
 
   setInterval(() => {
     Object.keys(allClient)
@@ -240,15 +240,17 @@ const socketServer = () => {
             if (objectData.timeNowToNextPhaseMilli !== null && objectData.timeNowToNextPhaseMilli <= 0) {
               objectData.timeNowToNextPhaseMilli = 0
               SubObject.findOne({ id: objectData.objectId }).then((subObjectData) => {
-                objectData.objectId = subObjectData.nextPhase
-                if (subObjectData.slotInput < objectData.itemInSlot.length) {
-                  objectData.splice(subObjectData.slotInput)
+                if (subObjectData.nextPhase) {
+                  objectData.objectId = subObjectData.nextPhase
+                  if (subObjectData.slotInput < objectData.itemInSlot.length) {
+                    objectData.splice(subObjectData.slotInput)
+                  }
+                  if (subObjectData.slotOutput < objectData.itemInOutput.length) {
+                    objectData.splice(subObjectData.slotOutput)
+                  }
+                  objectData.timeNowToNextPhaseMilli = subObjectData.timeToNextPhaseMilli
+                  ObjectsInArea.findByIdAndUpdate(mongoose.Types.ObjectId(objectData._id), { $set: objectData }).exec()
                 }
-                if (subObjectData.slotOutput < objectData.itemInOutput.length) {
-                  objectData.splice(subObjectData.slotOutput)
-                }
-                objectData.timeNowToNextPhaseMilli = subObjectData.timeToNextPhaseMilli
-                ObjectsInArea.findByIdAndUpdate(mongoose.Types.ObjectId(objectData._id), { $set: objectData }).exec()
               })
             } else {
               ObjectsInArea.findByIdAndUpdate(mongoose.Types.ObjectId(objectData._id), { $set: objectData }).exec()

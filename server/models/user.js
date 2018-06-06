@@ -19,6 +19,8 @@ const userSchema = new Schema({
   },
   name: String,
   inspectedObject: [{ type: String }],
+  itemList: Schema.Types.Mixed,
+  bagSize: Number,
   gameGeneralStatus: {
     health: { type: Number, default: 100 },
     energy: { type: Number, default: 100 },

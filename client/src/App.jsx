@@ -7,6 +7,12 @@ import {
   Col,
   Tabs,
   Tab,
+  DropdownButton,
+  ButtonToolbar,
+  Button,
+  MenuItem,
+  OverlayTrigger,
+
 } from 'react-bootstrap'
 
 import Playground from './components/pages/Playground'
@@ -20,6 +26,24 @@ import menuQuest from './assets/menu_quest.png'
 import menuBook from './assets/menu_book.png'
 import menuChat from './assets/menu_chat.png'
 import menuHide from './assets/menu_hide.png'
+
+import card_1 from './assets/card/card_1.png'
+import card_2 from './assets/card/card_2.png'
+import card_3 from './assets/card/card_3.png'
+import card_4 from './assets/card/card_4.png'
+import card_5 from './assets/card/card_5.png'
+import card_6 from './assets/card/card_6.png'
+
+import item_1 from './assets/items/item_1.png'
+import item_2 from './assets/items/item_2.png'
+import item_3 from './assets/items/item_3.png'
+import item_4 from './assets/items/item_4.png'
+import item_5 from './assets/items/item_5.png'
+import item_6 from './assets/items/item_6.png'
+import item_7 from './assets/items/item_7.png'
+import item_8 from './assets/items/item_8.png'
+import item_9 from './assets/items/item_9.png'
+import item_10 from './assets/items/item_10.png'
 
 const Scaling = new ScalingWindow()
 Scaling.scalingApp('main')
@@ -158,6 +182,115 @@ const PanelPlayground = styled(Grid)`
   background-color: black;
   overflow: hidden;
 `
+const BAG = [item_1, item_2, item_3, item_4]
+const BUTTONS = ['Default', 'Default', 'Default'];
+const renderDropdownButton = (title, i, objectData, input) => {
+  console.log('asdasdasdsssss')
+  console.log(input)
+  let Item = menuHide
+  if (input) {
+    Item = menuHide
+  } else {
+    if (i === 0) {
+      Item = item_9
+    } else {
+      Item = menuHide
+    }
+  }
+  return (
+    <div>
+    <DropdownButton
+      bsStyle={title.toLowerCase()}
+      key={i}
+      id={`dropdown-basic-${i}`}
+      style={{
+        width: '80px',
+        height: '80px',
+        backgroundImage: `url(${Item})`,
+        float :'left',
+        marginLeft: '10px',
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: '90%',
+        backgroundPosition: 'center',
+        color: 'black',
+      }}
+    >
+      <MenuItem eventKey="1">asd</MenuItem>
+      <MenuItem eventKey="2">Twig</MenuItem>
+      <MenuItem divider />
+      <MenuItem eventKey="4">Get back</MenuItem>
+    </DropdownButton>
+    <DropdownButton
+      bsStyle={title.toLowerCase()}
+      key={i}
+      id={`dropdown-basic-${i}`}
+      style={{
+        width: '80px',
+        height: '80px',
+        backgroundImage: `url(${menuHide})`,
+        float :'left',
+        marginLeft: '10px',
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: '90%',
+        backgroundPosition: 'center',
+        color: 'black',
+      }}
+    >
+      <MenuItem eventKey="1">none</MenuItem>
+      <MenuItem divider />
+      <MenuItem eventKey="4">Get back</MenuItem>
+    </DropdownButton>
+    </div>
+  );
+}
+
+const renderBagButton = (title, i, input, user) => {
+  console.log(user.user.name)
+  if (user.user.name === 'test_1') {
+    title = menuHide
+  }
+  return (
+    <div>
+    <DropdownButton
+      bsStyle={title.toLowerCase()}
+      key={i}
+      id={`dropdown-basic-${i}`}
+      style={{
+        width: '80px',
+        height: '80px',
+        backgroundImage: `url(${title})`,
+        float: 'left',
+        marginLeft: '10px',
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: '90%',
+        backgroundPosition: 'center',
+        color: 'black',
+      }}
+    >
+    </DropdownButton>
+    <DropdownButton
+      bsStyle={title.toLowerCase()}
+      key={i}
+      id={`dropdown-basic-${i}`}
+      style={{
+        width: '80px',
+        height: '80px',
+        backgroundImage: `url(${menuHide})`,
+        float :'left',
+        marginLeft: '10px',
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: '90%',
+        backgroundPosition: 'center',
+        color: 'black',
+      }}
+    >
+      {(title === menuHide) && (<MenuItem eventKey="1">eat</MenuItem>)}
+      {(title === menuHide) && (<MenuItem eventKey="2">drop</MenuItem>)}
+      {(title === menuHide) && (<MenuItem eventKey="2">equip</MenuItem>)}
+    </DropdownButton>
+    </div>
+  );
+}
 
 class App extends Component {
   constructor(props) {
@@ -195,7 +328,7 @@ class App extends Component {
       })
 
     } else {
-      const clearMenu = [false, false]
+      const clearMenu = [false, false, false, false, false, false]
       clearMenu[key] = true
       console.log(this.state.showMenu)
       if (this.state.showMenu) {
@@ -244,9 +377,12 @@ class App extends Component {
   }
 
   render() {
+    // alert(this.state.focusObject.objectData)
     window.onresize = () => {
       this.resizeMenu()
     }
+    console.log('asdasdasdasd datatatatatt ')
+    console.log(this.state.focusObject.objectData)
     console.log(this.props)
     return (
       this.props.userData && <PanelPlayground>
@@ -265,20 +401,51 @@ class App extends Component {
           <QuestMenuButton menuSelected={this.state.menuSelect[2]} onClick={() => this.selectMenu(2)} />
           <BookMenuButton menuSelected={this.state.menuSelect[3]} onClick={() => this.selectMenu(3)} />
           <ChatMenuButton menuSelected={this.state.menuSelect[4]} onClick={() => this.selectMenu(4)} />
-          <MenuData>
+          <MenuData style={{ overflowY: 'auto'}}>
             {this.state.menuSelect[0] && (
               <div>
                 <h3>Main panel</h3>
                 <h5>หน้าหลัก</h5>
                 <div>{this.state.focusObject.status}</div>
                 <br />
-                <div>{(this.state.focusObject.status !== 'no-object') ? this.state.focusObject.objectData.name : 'no object inspected'}</div>
+                <div>{((this.state.focusObject.objectData) && (this.state.focusObject.objectData.name != '????')) && (
+                  <div>
+
+                  <h3>{this.state.focusObject.objectData.name} </h3>
+                  <Grid>
+                    <Row>
+                    <h4 style={{ marginTop: '50px' }}>อุปกรณ์เสริม</h4>
+                      <center>
+                        {/* <button onClick={() => { alert('asdasd') }} style={{ width: '80px', height: '80px', backgroundColor: 'white', float :'left', marginLeft: '10px' }}> asdasd </button>
+                        <button style={{ width: '80px', height: '80px', backgroundColor: 'white', float :'left', marginLeft: '10px' }}> asdasd </button>
+                        <button style={{ width: '80px', height: '80px', backgroundColor: 'white', float :'left', marginLeft: '10px' }}> asdasd </button>
+                        <button style={{ width: '80px', height: '80px', backgroundColor: 'white', float :'left', marginLeft: '10px' }}> asdasd </button> */}
+                        <ButtonToolbar>{BUTTONS.map((el, index) => renderDropdownButton(el, index, this.state.focusObject.objectData, true))}</ButtonToolbar>
+                    </center>
+                    </Row>
+                  </Grid>
+                  <Grid>
+                    <Row>
+                    <h4 style={{ marginTop: '20px' }}>ผลลัพธ์</h4>
+                      <center>
+                        {/* <button onClick={() => { alert('asdasd') }} style={{ width: '80px', height: '80px', backgroundColor: 'white', float :'left', marginLeft: '10px' }}> asdasd </button>
+                        <button style={{ width: '80px', height: '80px', backgroundColor: 'white', float :'left', marginLeft: '10px' }}> asdasd </button>
+                        <button style={{ width: '80px', height: '80px', backgroundColor: 'white', float :'left', marginLeft: '10px' }}> asdasd </button>
+                        <button style={{ width: '80px', height: '80px', backgroundColor: 'white', float :'left', marginLeft: '10px' }}> asdasd </button> */}
+                        <ButtonToolbar>{BUTTONS.map((el, index) => renderDropdownButton(el, index, this.state.focusObject.objectData, false))}</ButtonToolbar>
+                        </center>
+                    </Row>
+                  </Grid>
+                  </div>
+                 )
+                }</div>
               </div>
             )}
             {this.state.menuSelect[1] && (
               <div>
                 <h3>Bag</h3>
                 <h5>กระเป๋า</h5>
+                <ButtonToolbar>{BAG.map((el, index) => renderBagButton(el, index, false, this.props.userData))}</ButtonToolbar>
               </div>
             )}
             {this.state.menuSelect[2] && (
@@ -291,6 +458,24 @@ class App extends Component {
               <div>
                 <h3>Books</h3>
                 <h5>หนังสือ</h5>
+                <img src={card_1} style={{ width: "70%" }} />
+                <h3> ภาวะเกื้อกูล </h3>
+                <p> testt testa</p>
+                <img src={card_2} style={{ width: "70%" }} />
+                <h3> ภาวะเกื้อกูล </h3>
+                <p> testt testa</p>
+                <img src={card_3} style={{ width: "70%" }} />
+                <h3> ภาวะเกื้อกูล </h3>
+                <p> testt testa</p>
+                <img src={card_4} style={{ width: "70%" }} />
+                <h3> ภาวะเกื้อกูล </h3>
+                <p> testt testa</p>
+                <img src={card_5} style={{ width: "70%" }} />
+                <h3> ภาวะเกื้อกูล </h3>
+                <p> testt testa</p>
+                <img src={card_6} style={{ width: "70%" }} />
+                <h3> ภาวะเกื้อกูล </h3>
+                <p> testt testa</p>
               </div>
             )}
             {this.state.menuSelect[4] && (
